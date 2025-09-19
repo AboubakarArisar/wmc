@@ -1,14 +1,11 @@
 // Stripe Configuration
-// Uses environment variables for security
+// Client-side only - NO SERVER CALLS
+
 const STRIPE_CONFIG = {
-  publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
-  secretKey: process.env.STRIPE_SECRET_KEY,
-  //   webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+  publishableKey: 'pk_test_51RqZ9V6K3mHtUMYglwGmqpmjb8kvuvQ1HWVnM5fQoVBkNkSKxYrXquaVv03Fyvd7kR7TEXoEAdg0kXwSJn8UDywF00XyqfIA2F'
 };
 
-// For client-side, only use the publishable key
+// For client-side use only
 export const STRIPE_PUBLISHABLE_KEY = STRIPE_CONFIG.publishableKey;
 
-// Note: Secret key should only be used on server-side
-// For this demo, we'll simulate Stripe data
 export default STRIPE_CONFIG;

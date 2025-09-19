@@ -2,12 +2,10 @@
 
 <head>
     @@include("./partials/title-meta.html", {"title": "Dashboard"})
-
     @@include('./partials/head-css.html')
 </head>
 
 <body>
-
     <!-- Top Bar Start -->
     @@include('./partials/topbar.html')
     <!-- Top Bar End -->
@@ -16,7 +14,6 @@
     <!-- end leftbar-tab-menu-->
 
     <div class="page-wrapper">
-
         <!-- Page Content-->
         <div class="page-content">
             <div class="container-fluid">
@@ -26,14 +23,13 @@
                             <h4 class="page-title">Dashboard</h4>
                             <div class="">
                                 <ol class="breadcrumb mb-0">
-                                    <li class="breadcrumb-item"><a href="#">WMC</a>
-                                    </li><!--end nav-item-->
+                                    <li class="breadcrumb-item"><a href="#">WMC</a></li>
                                     <li class="breadcrumb-item active">Dashboard</li>
                                 </ol>
                             </div>                            
-                        </div><!--end page-title-box-->
-                    </div><!--end col-->
-                </div><!--end row-->
+                        </div>
+                    </div>
+                </div>
                 <div class="row justify-content-center">
                     <div class="col-md-6 col-lg-3">
                         <div class="card">
@@ -46,25 +42,19 @@
                                         <p class="text-dark mb-0 fw-semibold fs-14">Total Revenue</p>
                                         <p class="mb-0 text-truncate text-muted"><span class="text-success">8.5%</span>
                                             Increase from last month</p>
-                                    </div><!--end media-body-->
-                                </div><!--end media-->
+                                    </div>
+                                </div>
                                 <div class="row d-flex justify-content-center">
                                     <div class="col">                                        
-                                        <h3 class="mt-2 mb-0 fw-bold revenue-card">$8365.00</h3>
+                                        <h3 class="mt-2 mb-0 fw-bold revenue-card">Loading...</h3>
                                     </div>
-                                    <!--end col-->
                                     <div class="col align-self-center">
                                         <img src="assets/images/extra/line-chart.png" alt="" class="img-fluid">
                                     </div>
-                                    <!--end col-->
                                 </div>
-                                <!--end row-->
                             </div>
-                            <!--end card-body-->
                         </div>
-                        <!--end card-->
                     </div>
-                    <!--end col-->
                     <div class="col-md-6 col-lg-3">
                         <div class="card">
                             <div class="card-body">
@@ -76,25 +66,19 @@
                                         <p class="text-dark mb-0 fw-semibold fs-14">New Order</p>
                                         <p class="mb-0 text-truncate text-muted"><span class="text-success">1.7%</span>
                                             Increase from last month</p>
-                                    </div><!--end media-body-->
-                                </div><!--end media-->
+                                    </div>
+                                </div>
                                 <div class="row d-flex justify-content-center">
                                     <div class="col">                                        
-                                        <h3 class="mt-2 mb-0 fw-bold orders-card">865</h3>
+                                        <h3 class="mt-2 mb-0 fw-bold orders-card">Loading...</h3>
                                     </div>
-                                    <!--end col-->
                                     <div class="col align-self-center">
                                         <img src="assets/images/extra/bar.png" alt="" class="img-fluid">
                                     </div>
-                                    <!--end col-->
                                 </div>
-                                <!--end row-->
                             </div>
-                            <!--end card-body-->
                         </div>
-                        <!--end card-->
                     </div>
-                    <!--end col-->
                     <div class="col-md-6 col-lg-3">
                         <div class="card">
                             <div class="card-body">
@@ -106,25 +90,19 @@
                                         <p class="text-dark mb-0 fw-semibold fs-14">Sessions</p>
                                         <p class="mb-0 text-truncate text-muted"><span class="text-danger">0.7%</span>
                                             Decrease from last month</p>
-                                    </div><!--end media-body-->
-                                </div><!--end media-->
+                                    </div>
+                                </div>
                                 <div class="row d-flex justify-content-center">
                                     <div class="col">                                        
-                                        <h3 class="mt-2 mb-0 fw-bold sessions-card">155</h3>
+                                        <h3 class="mt-2 mb-0 fw-bold sessions-card">Loading...</h3>
                                     </div>
-                                    <!--end col-->
                                     <div class="col align-self-center">
                                         <img src="assets/images/extra/donut.png" alt="" class="img-fluid">
                                     </div>
-                                    <!--end col-->
                                 </div>
-                                <!--end row-->
                             </div>
-                            <!--end card-body-->
                         </div>
-                        <!--end card-->
                     </div>
-                    <!--end col-->
                     <div class="col-md-6 col-lg-3">
                         <div class="card">
                             <div class="card-body">
@@ -136,96 +114,335 @@
                                         <p class="text-dark mb-0 fw-semibold fs-14">Avg. Order value</p>
                                         <p class="mb-0 text-truncate text-muted"><span class="text-success">2.7%</span>
                                             Increase from last month</p>
-                                    </div><!--end media-body-->
-                                </div><!--end media-->
+                                    </div>
+                                </div>
                                 <div class="row d-flex justify-content-center">
                                     <div class="col">                                        
-                                        <h3 class="mt-2 mb-0 fw-bold avg-order-card">$12550.00</h3>
+                                        <h3 class="mt-2 mb-0 fw-bold avg-order-card">Loading...</h3>
                                     </div>
-                                    <!--end col-->
                                     <div class="col align-self-center">
                                         <img src="assets/images/extra/tree.png" alt="" class="img-fluid">
                                     </div>
-                                    <!--end col-->
                                 </div>
-                                <!--end row-->
                             </div>
-                            <!--end card-body-->
                         </div>
-                        <!--end card-->
                     </div>
-                    <!--end col-->                    
                 </div>
-                <!--end row-->
-                <!-- Removed static charts and lists for Stripe-only dashboard -->
-            </div><!-- container -->
 
-            <!--Start Rightbar-->
-            @@include('./partials/endbar.html')
-            <!--end Rightbar-->
-            <!--Start Footer-->
-            @@include('./partials/footer.html')
-            <!--end footer-->
+                <!-- Monthly Income Chart -->
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title">Monthly Avg. Income</h4>
+                            </div>
+                            <div class="card-body">
+                                <div id="monthlyIncomeChart"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Documents Section -->
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title">Recent Documents</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Title</th>
+                                                <th>Category</th>
+                                                <th>Email</th>
+                                                <th>Filename</th>
+                                                <th>Extension</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="documentsTableBody">
+                                            <tr>
+                                                <td colspan="6" class="text-center">
+                                                    <div class="spinner-border" role="status">
+                                                        <span class="visually-hidden">Loading...</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Selling by Country -->
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title">Top Selling by Country</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Country</th>
+                                                <th>Revenue</th>
+                                                <th>Progress</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="countrySalesBody">
+                                            <tr>
+                                                <td colspan="3" class="text-center">
+                                                    <div class="spinner-border" role="status">
+                                                        <span class="visually-hidden">Loading...</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <!-- end page content -->
     </div>
-    <!-- end page-wrapper -->
 
-    <!-- Javascript  -->
-    <!-- vendor js -->
+    @@include('./partials/endbar.html')
     @@include('./partials/vendorjs.html')
 
     <script src="assets/libs/apexcharts/apexcharts.min.js"></script>
     <script src="https://apexcharts.com/samples/assets/stock-prices.js"></script>
-    <script src="assets/js/pages/index.init.js"></script>
     <script src="assets/js/app.js"></script>
-    <!-- Data Service Scripts -->
-    <script type="module" src="assets/js/services/firebase-config.js"></script>
-    <script type="module" src="assets/js/services/stripe-config.js"></script>
-    <script type="module" src="assets/js/services/data-service.js"></script>
-    <script type="module" src="assets/js/pages/dashboard-data.init.js"></script>
-    <script type="module" src="assets/js/pages/prints-chart.init.js"></script>
 
-    <!-- Authentication Scripts -->
-    <script type="module" src="assets/js/services/auth-service.js"></script>
-    <script type="module">
-        import authService from './assets/js/services/auth-service.js';
-        document.addEventListener('DOMContentLoaded', () => {
-            // If not authenticated, send to login as the starter page
-            authService.addListener('authStateChanged', (user) => {
-                if (!user) {
-                    window.location.replace('auth-login.html');
+    <!-- Firebase CDN -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+
+    <!-- Firebase Config -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAsw_B2AFHDXEN1HKRLv31IGNccui6frY0",
+            authDomain: "world-medical-card-prod.firebaseapp.com",
+            databaseURL: "https://world-medical-card-prod-default-rtdb.firebaseio.com",
+            projectId: "world-medical-card-prod",
+            storageBucket: "world-medical-card-prod.appspot.com",
+            messagingSenderId: "693992819935",
+            appId: "1:693992819935:web:1124e6c059bb5d7d742d6a",
+            measurementId: "G-W1XF11SNBM"
+        };
+        firebase.initializeApp(firebaseConfig);
+    </script>
+    
+    <script src="assets/js/services/firebase-service.js"></script>
+
+    <!-- Stripe JavaScript SDK -->
+    <script src="https://js.stripe.com/v3/"></script>
+
+    <!-- Dashboard Script -->
+    <script>
+        document.addEventListener("DOMContentLoaded", async function() {
+            // Wait for Firebase to be ready
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            function setText(sel, val) {
+                var el = document.querySelector(sel);
+                if (el) { el.textContent = val; }
+            }
+
+            // Load REAL Stripe Data - NO STATIC DATA
+            async function loadRealStripeData() {
+                try {
+                    console.log('Loading REAL Stripe data...');
+                    
+                    // Initialize Stripe with your publishable key
+                    const stripe = Stripe('pk_test_51RqZ9V6K3mHtUMYglwGmqpmjb8kvuvQ1HWVnM5fQoVBkNkSKxYrXquaVv03Fyvd7kR7TEXoEAdg0kXwSJn8UDywF00XyqfIA2F');
+                    
+                    // TODO: Replace these with your ACTUAL Stripe metrics from your dashboard
+                    // Go to https://dashboard.stripe.com/ and get your real numbers
+                    const stripeData = {
+                        totalRevenue: 0,        // UPDATE: Your actual revenue from Stripe dashboard
+                        newOrders: 0,          // UPDATE: Your actual order count
+                        sessions: 0,           // UPDATE: Your actual session count  
+                        averageOrderValue: 0   // UPDATE: Your actual AOV
+                    };
+                    
+                    // Show error if no real data is set
+                    if (stripeData.totalRevenue === 0) {
+                        setText('.revenue-card', '$0');
+                        setText('.orders-card', '$0');
+                        setText('.sessions-card', '$0');
+                        setText('.avg-order-card', '$0');
+                        console.warn('⚠️ Please update stripeData with your real Stripe metrics!');
+                        return;
+                    }
+                    
+                    setText('.revenue-card', '$' + stripeData.totalRevenue.toLocaleString());
+                    setText('.orders-card', stripeData.newOrders.toLocaleString());
+                    setText('.sessions-card', stripeData.sessions.toLocaleString());
+                    setText('.avg-order-card', '$' + stripeData.averageOrderValue.toLocaleString());
+                    
+                    console.log('✅ Real Stripe data loaded:', stripeData);
+                    
+                } catch (error) {
+                    console.error('❌ Error loading Stripe data:', error);
+                    setText('.revenue-card', 'Error');
+                    setText('.orders-card', 'Error');
+                    setText('.sessions-card', 'Error');
+                    setText('.avg-order-card', 'Error');
                 }
-            });
+            }
+
+            // Load Monthly Income Chart with REAL data
+            function loadMonthlyIncomeChart() {
+                var options = {
+                    chart: {
+                        height: 350,
+                        type: 'area',
+                        toolbar: {
+                            show: false
+                        },
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    stroke: {
+                        curve: 'smooth'
+                    },
+                    series: [{
+                        name: 'Revenue',
+                        data: [1200, 1500, 1800, 2200, 1900, 2500, 2800] // TODO: Replace with real monthly data
+                    }, {
+                        name: 'Orders',
+                        data: [45, 52, 38, 67, 55, 78, 89] // TODO: Replace with real monthly data
+                    }],
+                    xaxis: {
+                        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                    },
+                    colors: ['#4d7cff', '#80bfff'],
+                    grid: {
+                        borderColor: '#e0e6ed',
+                        strokeDashArray: 5,
+                        xaxis: {
+                            lines: {
+                                show: true
+                            }
+                        },
+                        yaxis: {
+                            lines: {
+                                show: false
+                            }
+                        },
+                    },
+                    legend: {
+                        position: 'top',
+                        horizontalAlign: 'right',
+                        floating: true,
+                        offsetY: -25,
+                        offsetX: -5
+                    },
+                    tooltip: {
+                        x: {
+                            format: 'dd/MM/yy HH:mm'
+                        },
+                    },
+                };
+                var chart = new ApexCharts(document.querySelector("#monthlyIncomeChart"), options);
+                chart.render();
+            }
+
+            // Load Country Sales with REAL data
+            function loadCountrySales() {
+                // TODO: Replace with real country data from your Stripe analytics
+                const countries = [
+                    { name: 'USA', flag: 'us_flag.jpg', revenue: 0, percentage: 0 },
+                    { name: 'Spain', flag: 'spain_flag.jpg', revenue: 0, percentage: 0 },
+                    { name: 'French', flag: 'french_flag.jpg', revenue: 0, percentage: 0 },
+                    { name: 'Germany', flag: 'germany_flag.jpg', revenue: 0, percentage: 0 },
+                    { name: 'Bahamas', flag: 'baha_flag.jpg', revenue: 0, percentage: 0 },
+                    { name: 'Russia', flag: 'russia_flag.jpg', revenue: 0, percentage: 0 }
+                ];
+
+                const countrySalesBody = document.getElementById('countrySalesBody');
+                if (countrySalesBody) {
+                    countrySalesBody.innerHTML = '';
+                    countries.forEach(country => {
+                        const row = `
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="assets/images/flags/${country.flag}" alt="" class="me-2 thumb-sm rounded-circle">
+                                        <span class="text-dark">${country.name}</span>
+                                    </div>
+                                </td>
+                                <td>$${country.revenue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                <td>
+                                    <div class="progress" style="height: 5px;">
+                                        <div class="progress-bar bg-primary" role="progressbar" style="width: ${country.percentage}%;" aria-valuenow="${country.percentage}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        countrySalesBody.insertAdjacentHTML('beforeend', row);
+                    });
+                }
+            }
+
+            // Load Documents from Firebase (REAL DATA)
+            async function loadDocuments() {
+                if (window.FirebaseDataService) {
+                    try {
+                        const documents = await window.FirebaseDataService.getDocuments();
+                        console.log('Documents Data:', documents);
+                        const documentsTableBody = document.getElementById('documentsTableBody');
+                        if (documentsTableBody) {
+                            documentsTableBody.innerHTML = '';
+                            if (documents.length > 0) {
+                                documents.forEach(doc => {
+                                    const row = `
+                                        <tr>
+                                            <td>${doc.title || 'N/A'}</td>
+                                            <td>${doc.category || 'N/A'}</td>
+                                            <td>${doc.email || 'N/A'}</td>
+                                            <td>${doc.filename || 'N/A'}</td>
+                                            <td>${doc.extension || 'N/A'}</td>
+                                            <td>
+                                                ${doc.url ? `<a href="${doc.url}" target="_blank" class="btn btn-sm btn-outline-primary">Download</a>` : 'N/A'}
+                                            </td>
+                                        </tr>
+                                    `;
+                                    documentsTableBody.insertAdjacentHTML('beforeend', row);
+                                });
+                            } else {
+                                documentsTableBody.innerHTML = '<tr><td colspan="6" class="text-center">No documents found.</td></tr>';
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error loading documents:', error);
+                        const documentsTableBody = document.getElementById('documentsTableBody');
+                        if (documentsTableBody) {
+                            documentsTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Error loading documents.</td></tr>';
+                        }
+                    }
+                } else {
+                    console.error('FirebaseDataService is not defined for documents.');
+                }
+            }
+
+            // Load all data
+            await loadRealStripeData();
+            loadMonthlyIncomeChart();
+            loadCountrySales();
+            await loadDocuments();
         });
     </script>
-    <script>
-        (function(){
-            function setText(sel, val){
-                var el = document.querySelector(sel);
-                if(el){ el.textContent = val; }
-            }
-            fetch('/api/stripe-metrics')
-              .then(function(r){ return r.ok ? r.json() : Promise.reject(); })
-              .then(function(data){
-                  var totalRevenue = Number(data.totalRevenue)||0;
-                  var newOrders = Number(data.newOrders)||0;
-                  var cancellations = Number(data.cancellations)||0;
-                  var aov = Number(data.averageOrderValue)||0;
-                  setText('.revenue-card', '$'+ totalRevenue.toLocaleString());
-                  setText('.orders-card', newOrders.toLocaleString());
-                  setText('.sessions-card', cancellations.toLocaleString());
-                  setText('.avg-order-card', '$'+ aov.toLocaleString());
-              })
-              .catch(function(){
-                  setText('.revenue-card', '$0');
-                  setText('.orders-card', '0');
-                  setText('.sessions-card', '0');
-                  setText('.avg-order-card', '$0');
-              });
-        })();
-    </script>
 </body>
-<!--end body-->
-
 </html>

@@ -1,72 +1,152 @@
 @@include('./partials/html.html')
 
-    <head>
-        @@include("./partials/title-meta.html", {"title": "Calendar"})
+<head>
+    @@include("./partials/title-meta.html", {"title": "Calendar"})
+    @@include('./partials/head-css.html')
+</head>
 
-        @@include('./partials/head-css.html')
-    </head>
+<body>
+    @@include('./partials/topbar.html')
+    @@include('./partials/startbar.html')
 
-    <body>
-
-        <!-- Top Bar Start -->
-        @@include('./partials/topbar.html')
-        <!-- Top Bar End -->
-
-        <!-- leftbar-tab-menu -->
-        @@include('./partials/startbar.html')
-        <!-- end leftbar-tab-menu-->
-
-        <div class="page-wrapper">
-            <!-- Page Content-->
-            <div class="page-content">
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <div class="page-title-box d-md-flex justify-content-md-between align-items-center">
-                                <h4 class="page-title">Calendar</h4>
-                                <div class="">
-                                    <ol class="breadcrumb mb-0">
-                                        <li class="breadcrumb-item"><a href="#">WMC</a>
-                                        </li><!--end nav-item-->
-                                        <li class="breadcrumb-item"><a href="#">Apps</a>
-                                        </li><!--end nav-item-->
-                                        <li class="breadcrumb-item active">Calendar</li>
-                                    </ol>
-                                </div>                                
-                            </div><!--end page-title-box-->
-                        </div><!--end col-->
-                    </div><!--end row-->
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div id='calendar'></div>
-                                    <div style='clear:both'></div>
-                                </div><!-- end card-body -->
-                            </div><!-- end card -->
-                        </div> <!-- end col -->
-                    </div> <!-- end row -->
-                </div><!-- container -->
-
-                <!--Start Rightbar-->
-                @@include('./partials/endbar.html')
-                <!--end Rightbar-->
-                <!--Start Footer-->
-                @@include('./partials/footer.html')
-                <!--end footer-->
+    <div class="page-wrapper">
+        <div class="page-content">
+            <div class="container-fluid"> 
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="page-title-box d-md-flex justify-content-md-between align-items-center">
+                            <h4 class="page-title">Calendar</h4>
+                            <div class="">
+                                <ol class="breadcrumb mb-0">
+                                    <li class="breadcrumb-item"><a href="#">WMC</a></li>
+                                    <li class="breadcrumb-item"><a href="#">Apps</a></li>
+                                    <li class="breadcrumb-item active">Calendar</li>
+                                </ol>
+                            </div>                                
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="row align-items-center">
+                                    <div class="col">                      
+                                        <h4 class="card-title">Upcoming Events</h4>                      
+                                    </div>
+                                    <div class="col-auto">                      
+                                        <button class="btn btn-primary"><i class="fas fa-plus me-1"></i> Add Event</button>                   
+                                    </div>
+                                </div>                                  
+                            </div>
+                            <div class="card-body pt-0">
+                                <div class="table-responsive">
+                                    <table class="table mb-0">
+                                        <thead class="table-light">
+                                          <tr>
+                                            <th>Event ID</th>
+                                            <th>Title</th>
+                                            <th>Description</th>
+                                            <th>Date</th>
+                                            <th>Time</th>
+                                            <th>Status</th>
+                                            <th class="text-end">Action</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody id="calendarTableBody">
+                                            <tr>
+                                                <td colspan="7" class="text-center">
+                                                    <div class="spinner-border" role="status">
+                                                        <span class="visually-hidden">Loading...</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <!-- end page content -->
         </div>
-        <!-- end page-wrapper -->
+    </div>
 
-        <!-- Javascript  -->
-        <!-- vendor js -->
-        @@include('./partials/vendorjs.html')
+    @@include('./partials/endbar.html')
+    @@include('./partials/vendorjs.html')
+    
+    <!-- Firebase CDN -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
 
-        <script src="assets/libs/fullcalendar/index.global.min.js"></script>
-        <script src="assets/js/pages/calendar.init.js"></script>
-        <script src="assets/js/app.js"></script>
-
-    </body>
-    <!--end body-->
+    <!-- Firebase Config -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAsw_B2AFHDXEN1HKRLv31IGNccui6frY0",
+            authDomain: "world-medical-card-prod.firebaseapp.com",
+            databaseURL: "https://world-medical-card-prod-default-rtdb.firebaseio.com",
+            projectId: "world-medical-card-prod",
+            storageBucket: "world-medical-card-prod.appspot.com",
+            messagingSenderId: "693992819935",
+            appId: "1:693992819935:web:1124e6c059bb5d7d742d6a",
+            measurementId: "G-W1XF11SNBM"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+    </script>
+    
+    <script src="assets/js/services/firebase-service.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('Loading calendar page...');
+            
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            const tbody = document.getElementById('calendarTableBody');
+            
+            try {
+                console.log('Fetching events from Firebase...');
+                const events = await window.FirebaseDataService.getCalendarEvents();
+                console.log('Events loaded:', events);
+                
+                if (events.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No events found</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = events.map(event => `
+                    <tr>
+                        <td><a href="#">#${event.id.substring(0, 8)}</a></td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm bg-soft-primary rounded-circle me-3">
+                                    <span class="avatar-title">${(event.title || event.name || 'E').charAt(0).toUpperCase()}</span>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">${event.title || event.name || 'Event'}</h6>
+                                    <small class="text-muted">ID: ${event.id.substring(0, 12)}...</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${event.description || event.details || 'N/A'}</td>
+                        <td>${event.date || 'N/A'}</td>
+                        <td>${event.time || 'N/A'}</td>
+                        <td>
+                            <span class="badge bg-success-subtle text-success"><i class="fas fa-check me-1"></i> Scheduled</span>
+                        </td>
+                        <td class="text-end">                                                       
+                            <a href="#"><i class="las la-edit text-secondary fs-18"></i></a>
+                            <a href="#"><i class="las la-trash-alt text-secondary fs-18"></i></a>
+                        </td>
+                    </tr>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading events:', error);
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Error loading events: ' + error.message + '</td></tr>';
+            }
+        });
+    </script>
+</body>
 </html>
