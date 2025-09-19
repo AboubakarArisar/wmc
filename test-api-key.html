@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Key Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-box { background: #f8f9fa; padding: 20px; border-radius: 5px; margin: 10px 0; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>Firebase API Key Test</h1>
+    
+    <div class="test-box">
+        <h3>Enter Your API Key</h3>
+        <input type="text" id="apiKey" placeholder="AIzaSyC..." style="width: 100%; padding: 10px; margin: 10px 0;">
+        <button onclick="testAPIKey()">Test API Key</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function testAPIKey() {
+            const apiKey = document.getElementById('apiKey').value;
+            const resultDiv = document.getElementById('result');
+            
+            if (!apiKey) {
+                resultDiv.innerHTML = '<div class="error">Please enter an API key</div>';
+                return;
+            }
+
+            resultDiv.innerHTML = '<div>Testing API key...</div>';
+
+            try {
+                const response = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'test@example.com',
+                        password: 'testpassword123',
+                        returnSecureToken: true
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    if (data.error.message.includes('API key not valid')) {
+                        resultDiv.innerHTML = '<div class="error">❌ API Key is invalid. Please check your Firebase configuration.</div>';
+                    } else if (data.error.message.includes('EMAIL_EXISTS')) {
+                        resultDiv.innerHTML = '<div class="success">✅ API Key is valid! (Email already exists error is expected)</div>';
+                    } else {
+                        resultDiv.innerHTML = `<div class="error">❌ Error: ${data.error.message}</div>`;
+                    }
+                } else {
+                    resultDiv.innerHTML = '<div class="success">✅ API Key is valid! Authentication is working.</div>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Network error: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

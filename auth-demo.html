@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WMC Authentication Demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f8f9fa; }
+        .demo-card { background: white; border-radius: 10px; padding: 20px; margin: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .status { padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">WMC Authentication Demo</h1>
+        
+        <div class="demo-card">
+            <h3>🚀 Quick Demo (No Firebase Setup Required)</h3>
+            <div class="status info">
+                This demo simulates authentication without requiring Firebase setup. 
+                You can see how the authentication system works before setting up Firebase.
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Demo Registration</h5>
+                    <input type="text" class="form-control mb-2" id="demo-name" placeholder="Full Name" value="John Doe">
+                    <input type="email" class="form-control mb-2" id="demo-email" placeholder="Email" value="john@example.com">
+                    <input type="password" class="form-control mb-2" id="demo-password" placeholder="Password" value="password123">
+                    <button class="btn btn-success" onclick="demoRegistration()">Demo Registration</button>
+                </div>
+                <div class="col-md-6">
+                    <h5>Demo Login</h5>
+                    <input type="email" class="form-control mb-2" id="demo-login-email" placeholder="Email" value="john@example.com">
+                    <input type="password" class="form-control mb-2" id="demo-login-password" placeholder="Password" value="password123">
+                    <button class="btn btn-primary" onclick="demoLogin()">Demo Login</button>
+                </div>
+            </div>
+            
+            <div id="demo-result" class="mt-3"></div>
+        </div>
+
+        <div class="demo-card">
+            <h3>📋 Next Steps</h3>
+            <div class="status warning">
+                <strong>To make authentication work with real data:</strong>
+                <ol class="mt-2">
+                    <li>Follow the <a href="FIREBASE_SETUP_GUIDE.md" target="_blank">Firebase Setup Guide</a></li>
+                    <li>Get your Firebase configuration</li>
+                    <li>Update the configuration in <code>src/auth-login.html</code> and <code>src/auth-register.html</code></li>
+                    <li>Test with <a href="firebase-test.html" target="_blank">firebase-test.html</a></li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="demo-card">
+            <h3>🔗 Test Pages</h3>
+            <div class="d-grid gap-2 d-md-flex">
+                <a href="src/auth-login.html" class="btn btn-primary">Login Page</a>
+                <a href="src/auth-register.html" class="btn btn-success">Register Page</a>
+                <a href="firebase-test.html" class="btn btn-info">Firebase Test</a>
+                <a href="src/index.html" class="btn btn-secondary">Dashboard</a>
+            </div>
+        </div>
+
+        <div class="demo-card">
+            <h3>📊 Current Status</h3>
+            <div id="status-display">
+                <div class="status info">Ready to test authentication...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock authentication system for demo
+        let currentUser = null;
+        let users = [];
+
+        function log(message, type = 'info') {
+            console.log(message);
+            const statusDiv = document.getElementById('status-display');
+            const timestamp = new Date().toLocaleTimeString();
+            statusDiv.innerHTML = `<div class="status ${type}">[${timestamp}] ${message}</div>`;
+        }
+
+        function demoRegistration() {
+            const name = document.getElementById('demo-name').value;
+            const email = document.getElementById('demo-email').value;
+            const password = document.getElementById('demo-password').value;
+
+            if (!name || !email || !password) {
+                log('❌ Please fill in all fields', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                log('❌ Password must be at least 6 characters', 'error');
+                return;
+            }
+
+            // Check if user already exists
+            if (users.find(u => u.email === email)) {
+                log('❌ User with this email already exists', 'error');
+                return;
+            }
+
+            // Create user
+            const user = {
+                id: Date.now().toString(),
+                name: name,
+                email: email,
+                password: password,
+                createdAt: new Date(),
+                role: 'user'
+            };
+
+            users.push(user);
+            currentUser = user;
+
+            log(`✅ Registration successful! Welcome ${name}`, 'success');
+            document.getElementById('demo-result').innerHTML = `
+                <div class="status success">
+                    <strong>Registration Successful!</strong><br>
+                    Name: ${name}<br>
+                    Email: ${email}<br>
+                    User ID: ${user.id}
+                </div>
+            `;
+        }
+
+        function demoLogin() {
+            const email = document.getElementById('demo-login-email').value;
+            const password = document.getElementById('demo-login-password').value;
+
+            if (!email || !password) {
+                log('❌ Please fill in email and password', 'error');
+                return;
+            }
+
+            // Find user
+            const user = users.find(u => u.email === email && u.password === password);
+
+            if (!user) {
+                log('❌ Invalid email or password', 'error');
+                return;
+            }
+
+            currentUser = user;
+            log(`✅ Login successful! Welcome back ${user.name}`, 'success');
+            document.getElementById('demo-result').innerHTML = `
+                <div class="status success">
+                    <strong>Login Successful!</strong><br>
+                    Name: ${user.name}<br>
+                    Email: ${user.email}<br>
+                    Role: ${user.role}
+                </div>
+            `;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            log('🚀 WMC Authentication Demo loaded');
+            log('💡 This is a mock system - follow the setup guide for real Firebase integration');
+        });
+    </script>
+</body>
+</html>

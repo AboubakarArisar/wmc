@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-startbar="light" data-bs-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <title>Register - WMC Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta content="WMC Dashboard" name="description" />
+    <meta content="WMC" name="author" />
+    <link rel="shortcut icon" href="assets/images/favicon.ico" />
+    <link
+      href="assets/css/bootstrap.min.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link href="assets/css/icons.css" rel="stylesheet" type="text/css" />
+    <link href="assets/css/app.css" rel="stylesheet" type="text/css" />
+    <style>
+      .auth-page {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .auth-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        max-width: 500px;
+        width: 100%;
+      }
+      .auth-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+      }
+      .auth-body {
+        padding: 2rem;
+      }
+      .form-floating {
+        margin-bottom: 1rem;
+      }
+      .btn-auth {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 8px;
+        padding: 12px;
+        font-weight: 600;
+        width: 100%;
+        margin-bottom: 1rem;
+      }
+      .btn-auth:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      }
+      .alert {
+        border-radius: 8px;
+        margin-bottom: 1rem;
+      }
+      .loading {
+        display: none;
+      }
+      .loading.show {
+        display: inline-block;
+      }
+      .password-strength {
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+      }
+      .strength-weak {
+        color: #dc3545;
+      }
+      .strength-medium {
+        color: #ffc107;
+      }
+      .strength-strong {
+        color: #28a745;
+      }
+    </style>
+  </head>
+
+  <body class="auth-page">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+          <div class="auth-card">
+            <div class="auth-header">
+              <div class="mb-3">
+                <div
+                  class="logo-icon"
+                  style="
+                    width: 60px;
+                    height: 60px;
+                    background: rgba(255, 255, 255, 0.2);
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 auto;
+                    color: white;
+                    font-size: 24px;
+                    font-weight: bold;
+                  "
+                >
+                  W
+                </div>
+              </div>
+              <h3 class="mb-0">Create Account</h3>
+              <p class="mb-0 opacity-75">Join WMC and start your journey</p>
+            </div>
+            <div class="auth-body">
+              <div id="alert-container"></div>
+
+              <form id="register-form">
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="firstName"
+                        placeholder="First Name"
+                        required
+                      />
+                      <label for="firstName">First Name</label>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="lastName"
+                        placeholder="Last Name"
+                        required
+                      />
+                      <label for="lastName">Last Name</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-floating mb-3">
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="email"
+                    placeholder="name@example.com"
+                    required
+                  />
+                  <label for="email">Email address</label>
+                </div>
+
+                <div class="form-floating mb-3">
+                  <input
+                    type="tel"
+                    class="form-control"
+                    id="phone"
+                    placeholder="Phone Number"
+                  />
+                  <label for="phone">Phone Number (Optional)</label>
+                </div>
+
+                <div class="form-floating mb-3">
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="password"
+                    placeholder="Password"
+                    required
+                  />
+                  <label for="password">Password</label>
+                  <div id="password-strength" class="password-strength"></div>
+                </div>
+
+                <div class="form-floating mb-3">
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="confirmPassword"
+                    placeholder="Confirm Password"
+                    required
+                  />
+                  <label for="confirmPassword">Confirm Password</label>
+                </div>
+
+                <div class="form-check mb-3">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="terms"
+                    required
+                  />
+                  <label class="form-check-label" for="terms">
+                    I agree to the
+                    <a href="#" class="text-decoration-none"
+                      >Terms and Conditions</a
+                    >
+                  </label>
+                </div>
+
+                <button
+                  type="submit"
+                  class="btn btn-primary btn-auth"
+                  id="register-btn"
+                >
+                  <span class="btn-text">Create Account</span>
+                  <span
+                    class="loading spinner-border spinner-border-sm"
+                    role="status"
+                  ></span>
+                </button>
+              </form>
+
+              <div class="text-center mt-3">
+                <p class="mb-0">
+                  Already have an account?
+                  <a
+                    href="auth-login.html"
+                    class="text-decoration-none fw-semibold"
+                    >Sign in</a
+                  >
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+      import {
+        getAuth,
+        createUserWithEmailAndPassword,
+        updateProfile,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        setDoc,
+      } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+      // Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyBY8bpwNwpCSyJX9yWosWULSXzQS9_qfm0",
+        authDomain: "wmc-project-f5861.firebaseapp.com",
+        projectId: "wmc-project-f5861",
+        storageBucket: "wmc-project-f5861.firebasestorage.app",
+        messagingSenderId: "92154463945",
+        appId: "1:92154463945:web:d17fbfd846b0c1b1d1af18",
+        measurementId: "G-CFBW3D9592",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      class RegisterController {
+        constructor() {
+          this.init();
+        }
+
+        init() {
+          // Check if user is already logged in
+          auth.onAuthStateChanged((user) => {
+            if (user) {
+              console.log("User already logged in:", user.email);
+              window.location.href = "index.html";
+            }
+          });
+
+          // Form submission
+          document
+            .getElementById("register-form")
+            .addEventListener("submit", (e) => {
+              e.preventDefault();
+              this.handleRegister();
+            });
+
+          // Password strength checker
+          document.getElementById("password").addEventListener("input", (e) => {
+            this.checkPasswordStrength(e.target.value);
+          });
+
+          // Password confirmation checker
+          document
+            .getElementById("confirmPassword")
+            .addEventListener("input", (e) => {
+              this.checkPasswordMatch();
+            });
+        }
+
+        checkPasswordStrength(password) {
+          const strengthDiv = document.getElementById("password-strength");
+          let strength = 0;
+          let message = "";
+
+          if (password.length >= 8) strength++;
+          if (/[a-z]/.test(password)) strength++;
+          if (/[A-Z]/.test(password)) strength++;
+          if (/[0-9]/.test(password)) strength++;
+          if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+          if (password.length === 0) {
+            message = "";
+          } else if (strength < 3) {
+            message = "Weak password";
+            strengthDiv.className = "password-strength strength-weak";
+          } else if (strength < 4) {
+            message = "Medium strength";
+            strengthDiv.className = "password-strength strength-medium";
+          } else {
+            message = "Strong password";
+            strengthDiv.className = "password-strength strength-strong";
+          }
+
+          strengthDiv.textContent = message;
+        }
+
+        checkPasswordMatch() {
+          const password = document.getElementById("password").value;
+          const confirmPassword =
+            document.getElementById("confirmPassword").value;
+          const confirmField = document.getElementById("confirmPassword");
+
+          if (confirmPassword && password !== confirmPassword) {
+            confirmField.setCustomValidity("Passwords do not match");
+          } else {
+            confirmField.setCustomValidity("");
+          }
+        }
+
+        async handleRegister() {
+          const firstName = document.getElementById("firstName").value.trim();
+          const lastName = document.getElementById("lastName").value.trim();
+          const email = document.getElementById("email").value.trim();
+          const phone = document.getElementById("phone").value.trim();
+          const password = document.getElementById("password").value;
+          const confirmPassword =
+            document.getElementById("confirmPassword").value;
+          const termsAccepted = document.getElementById("terms").checked;
+
+          // Validation
+          if (!firstName || !lastName || !email || !password) {
+            this.showAlert("danger", "Please fill in all required fields.");
+            return;
+          }
+
+          if (password !== confirmPassword) {
+            this.showAlert("danger", "Passwords do not match.");
+            return;
+          }
+
+          if (password.length < 6) {
+            this.showAlert(
+              "danger",
+              "Password must be at least 6 characters long."
+            );
+            return;
+          }
+
+          if (!termsAccepted) {
+            this.showAlert("danger", "Please accept the terms and conditions.");
+            return;
+          }
+
+          this.setLoading(true);
+          this.clearAlerts();
+
+          try {
+            // Create user account
+            const userCredential = await createUserWithEmailAndPassword(
+              auth,
+              email,
+              password
+            );
+            const user = userCredential.user;
+
+            console.log("Registration successful:", user);
+
+            // Update user profile
+            await updateProfile(user, {
+              displayName: `${firstName} ${lastName}`.trim(),
+            });
+
+            // Create user document in Firestore
+            await setDoc(doc(db, "users", user.uid), {
+              email: user.email,
+              displayName: `${firstName} ${lastName}`.trim(),
+              firstName: firstName,
+              lastName: lastName,
+              phone: phone || "",
+              country: "Unknown",
+              role: "user",
+              createdAt: new Date(),
+              lastLoginAt: new Date(),
+              isActive: true,
+            });
+
+            console.log("User profile created in Firestore");
+
+            this.showAlert(
+              "success",
+              "Registration successful! Please sign in."
+            );
+
+            // Sign out newly created user to enforce login via sign-in page
+            try {
+              await signOut(auth);
+            } catch (e) {
+              console.warn("Sign out after registration failed:", e);
+            }
+
+            // Redirect to login
+            setTimeout(() => {
+              window.location.href = "auth-login.html";
+            }, 1500);
+          } catch (error) {
+            console.error("Registration error:", error);
+            let errorMessage = "Registration failed. Please try again.";
+
+            switch (error.code) {
+              case "auth/email-already-in-use":
+                errorMessage = "An account with this email already exists.";
+                break;
+              case "auth/invalid-email":
+                errorMessage = "Invalid email address.";
+                break;
+              case "auth/weak-password":
+                errorMessage =
+                  "Password is too weak. Please choose a stronger password.";
+                break;
+              case "auth/network-request-failed":
+                errorMessage = "Network error. Please check your connection.";
+                break;
+              default:
+                errorMessage = error.message;
+            }
+
+            this.showAlert("danger", errorMessage);
+          } finally {
+            this.setLoading(false);
+          }
+        }
+
+        setLoading(loading) {
+          const btn = document.getElementById("register-btn");
+          const btnText = btn.querySelector(".btn-text");
+          const loadingSpinner = btn.querySelector(".loading");
+
+          if (loading) {
+            btn.disabled = true;
+            btnText.style.display = "none";
+            loadingSpinner.classList.add("show");
+          } else {
+            btn.disabled = false;
+            btnText.style.display = "inline";
+            loadingSpinner.classList.remove("show");
+          }
+        }
+
+        showAlert(type, message) {
+          const alertContainer = document.getElementById("alert-container");
+          alertContainer.innerHTML = `
+                    <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                `;
+        }
+
+        clearAlerts() {
+          document.getElementById("alert-container").innerHTML = "";
+        }
+      }
+
+      // Initialize when DOM is loaded
+      document.addEventListener("DOMContentLoaded", () => {
+        new RegisterController();
+      });
+    </script>
+  </body>
+</html>

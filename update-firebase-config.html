@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Firebase Configuration</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f8f9fa; }
+        .config-card { background: white; border-radius: 10px; padding: 20px; margin: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .form-control { margin-bottom: 10px; }
+        .btn { margin: 5px; }
+        .status { padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .code-block { background: #f8f9fa; padding: 15px; border-radius: 5px; font-family: monospace; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">Firebase Configuration Updater</h1>
+        
+        <div class="config-card">
+            <h3>🔧 Enter Your Firebase Configuration</h3>
+            <div class="status info">
+                <strong>Paste your Firebase config here:</strong><br>
+                You can find this in your Firebase Console → Project Settings → General → Your apps
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label">API Key:</label>
+                    <input type="text" class="form-control" id="apiKey" placeholder="AIzaSyC...">
+                    
+                    <label class="form-label">Auth Domain:</label>
+                    <input type="text" class="form-control" id="authDomain" placeholder="your-project.firebaseapp.com">
+                    
+                    <label class="form-label">Project ID:</label>
+                    <input type="text" class="form-control" id="projectId" placeholder="your-project-id">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Storage Bucket:</label>
+                    <input type="text" class="form-control" id="storageBucket" placeholder="your-project.appspot.com">
+                    
+                    <label class="form-label">Messaging Sender ID:</label>
+                    <input type="text" class="form-control" id="messagingSenderId" placeholder="123456789">
+                    
+                    <label class="form-label">App ID:</label>
+                    <input type="text" class="form-control" id="appId" placeholder="1:123456789:web:abcdef">
+                </div>
+            </div>
+            
+            <div class="text-center mt-3">
+                <button class="btn btn-primary" onclick="updateConfig()">Update Configuration</button>
+                <button class="btn btn-secondary" onclick="testConfig()">Test Configuration</button>
+            </div>
+        </div>
+
+        <div class="config-card">
+            <h3>📋 Generated Configuration Code</h3>
+            <div id="generated-config" class="code-block">
+                // Your configuration will appear here
+            </div>
+            <button class="btn btn-success" onclick="copyConfig()">Copy Configuration</button>
+        </div>
+
+        <div class="config-card">
+            <h3>📝 Instructions</h3>
+            <div class="status info">
+                <strong>After updating the configuration:</strong>
+                <ol>
+                    <li>Copy the generated configuration code above</li>
+                    <li>Open <code>src/auth-login.html</code> in a text editor</li>
+                    <li>Find the <code>firebaseConfig</code> object (around line 30)</li>
+                    <li>Replace it with your configuration</li>
+                    <li>Do the same for <code>src/auth-register.html</code></li>
+                    <li>Test with <a href="firebase-test.html" target="_blank">firebase-test.html</a></li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="config-card">
+            <h3>🔍 Common Issues</h3>
+            <div class="status error">
+                <strong>If you're still getting API key errors:</strong>
+                <ul>
+                    <li>Make sure you copied the config from the correct Firebase project</li>
+                    <li>Check that Authentication is enabled in Firebase Console</li>
+                    <li>Verify that Email/Password sign-in is enabled</li>
+                    <li>Make sure you're using the Web app configuration (not Android/iOS)</li>
+                    <li>Check that your project is not in a restricted region</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateConfig() {
+            const config = {
+                apiKey: document.getElementById('apiKey').value,
+                authDomain: document.getElementById('authDomain').value,
+                projectId: document.getElementById('projectId').value,
+                storageBucket: document.getElementById('storageBucket').value,
+                messagingSenderId: document.getElementById('messagingSenderId').value,
+                appId: document.getElementById('appId').value
+            };
+
+            // Validate
+            if (!config.apiKey || !config.projectId) {
+                alert('Please fill in at least API Key and Project ID');
+                return;
+            }
+
+            // Generate config code
+            const configCode = `const firebaseConfig = {
+    apiKey: "${config.apiKey}",
+    authDomain: "${config.authDomain}",
+    projectId: "${config.projectId}",
+    storageBucket: "${config.storageBucket}",
+    messagingSenderId: "${config.messagingSenderId}",
+    appId: "${config.appId}"
+};`;
+
+            document.getElementById('generated-config').textContent = configCode;
+            
+            // Store for testing
+            window.testConfig = config;
+        }
+
+        function testConfig() {
+            if (!window.testConfig) {
+                alert('Please update configuration first');
+                return;
+            }
+
+            // Test the configuration
+            fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${window.testConfig.apiKey}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: 'test@example.com',
+                    password: 'testpassword123',
+                    returnSecureToken: true
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    if (data.error.message.includes('API key not valid')) {
+                        alert('❌ API Key is invalid. Please check your Firebase configuration.');
+                    } else if (data.error.message.includes('INVALID_ARGUMENT')) {
+                        alert('❌ Invalid configuration. Please check all fields.');
+                    } else {
+                        alert('❌ Error: ' + data.error.message);
+                    }
+                } else {
+                    alert('✅ Configuration is valid! You can now use this in your auth pages.');
+                }
+            })
+            .catch(error => {
+                alert('❌ Network error: ' + error.message);
+            });
+        }
+
+        function copyConfig() {
+            const configText = document.getElementById('generated-config').textContent;
+            navigator.clipboard.writeText(configText).then(() => {
+                alert('Configuration copied to clipboard!');
+            });
+        }
+
+        // Load any existing config from localStorage
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedConfig = localStorage.getItem('firebaseConfig');
+            if (savedConfig) {
+                const config = JSON.parse(savedConfig);
+                document.getElementById('apiKey').value = config.apiKey || '';
+                document.getElementById('authDomain').value = config.authDomain || '';
+                document.getElementById('projectId').value = config.projectId || '';
+                document.getElementById('storageBucket').value = config.storageBucket || '';
+                document.getElementById('messagingSenderId').value = config.messagingSenderId || '';
+                document.getElementById('appId').value = config.appId || '';
+            }
+        });
+    </script>
+</body>
+</html>

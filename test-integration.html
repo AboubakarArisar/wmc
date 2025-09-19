@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WMC Integration Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+    </style>
+</head>
+<body>
+    <h1>WMC Firebase & Stripe Integration Test</h1>
+    
+    <div class="test-section info">
+        <h3>Setup Instructions</h3>
+        <p>1. Follow the setup guide in FIREBASE_STRIPE_SETUP.md</p>
+        <p>2. Update your Firebase and Stripe configuration files</p>
+        <p>3. Add sample data to your Firebase collections</p>
+        <p>4. Check the browser console for any errors</p>
+    </div>
+
+    <div class="test-section">
+        <h3>Data Service Test</h3>
+        <button onclick="testDataService()">Test Data Service</button>
+        <div id="data-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Firebase Connection Test</h3>
+        <button onclick="testFirebase()">Test Firebase</button>
+        <div id="firebase-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Mock Data Test</h3>
+        <button onclick="testMockData()">Test Mock Data</button>
+        <div id="mock-results"></div>
+    </div>
+
+    <script type="module">
+        import dataService from './dist/assets/js/services/data-service.js';
+
+        window.testDataService = async function() {
+            const results = document.getElementById('data-results');
+            try {
+                const data = await dataService.getStripeData();
+                results.innerHTML = `<div class="success">✅ Data service working! Stripe data: ${JSON.stringify(data)}</div>`;
+            } catch (error) {
+                results.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        };
+
+        window.testFirebase = async function() {
+            const results = document.getElementById('firebase-results');
+            try {
+                const customers = await dataService.getCustomers();
+                results.innerHTML = `<div class="success">✅ Firebase working! Found ${customers.length} customers</div>`;
+            } catch (error) {
+                results.innerHTML = `<div class="error">❌ Firebase error: ${error.message}</div>`;
+            }
+        };
+
+        window.testMockData = function() {
+            const results = document.getElementById('mock-results');
+            try {
+                const mockData = dataService.getMockStripeData();
+                results.innerHTML = `<div class="success">✅ Mock data working! ${JSON.stringify(mockData)}</div>`;
+            } catch (error) {
+                results.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        };
+    </script>
+</body>
+</html>

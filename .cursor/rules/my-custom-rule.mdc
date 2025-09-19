@@ -1,0 +1,52 @@
+---
+alwaysApply: true
+---
+
+{
+"rules": [
+{
+"description": "Use Gulp 4 syntax with async tasks and exports instead of gulp.task().",
+"severity": "error"
+},
+{
+"description": "Always place source files in `src/` and output built files into `dist/`.",
+"severity": "warning"
+},
+{
+"description": "Use ES modules (`import`/`export`) instead of CommonJS (`require`).",
+"severity": "warning"
+},
+{
+"description": "CSS tasks must include autoprefixer and cssnano in the PostCSS pipeline.",
+"severity": "error"
+},
+{
+"description": "When writing tasks, prefer arrow functions and avoid inline anonymous functions for readability.",
+"severity": "info"
+}
+]
+}
+{
+"rules": [
+{
+"description": "Use Gulp 4 syntax with async tasks and exports instead of gulp.task().",
+"severity": "error"
+},
+{
+"description": "Always place source files in `src/` and output built files into `dist/`.",
+"severity": "warning"
+},
+{
+"description": "Use ES modules (`import`/`export`) instead of CommonJS (`require`).",
+"severity": "warning"
+},
+{
+"description": "CSS tasks must include autoprefixer and cssnano in the PostCSS pipeline.",
+"severity": "error"
+},
+{
+"description": "When writing tasks, prefer arrow functions and avoid inline anonymous functions for readability.",
+"severity": "info"
+}
+]
+}

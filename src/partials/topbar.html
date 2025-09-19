@@ -1,0 +1,158 @@
+<div class="topbar d-print-none">
+  <div class="container-fluid">
+    <nav
+      class="topbar-custom d-flex justify-content-between"
+      id="topbar-custom"
+    >
+      <ul
+        class="topbar-item list-unstyled d-inline-flex align-items-center mb-0"
+      >
+        <li>
+          <button class="nav-link mobile-menu-btn nav-icon" id="togglemenu">
+            <i class="iconoir-menu"></i>
+          </button>
+        </li>
+        <li class="mx-2 welcome-text">
+          <h5 class="mb-0 fw-semibold text-truncate" id="greeting">
+            Good Morning!
+          </h5>
+          <!-- <h6 class="mb-0 fw-normal text-muted text-truncate fs-14">Here's your overview this week.</h6> -->
+        </li>
+      </ul>
+      <ul
+        class="topbar-item list-unstyled d-inline-flex align-items-center mb-0"
+      >
+        <li class="topbar-item">
+          <a
+            class="nav-link nav-icon"
+            href="javascript:void(0);"
+            id="light-dark-mode"
+          >
+            <i class="iconoir-half-moon dark-mode"></i>
+            <i class="iconoir-sun-light light-mode"></i>
+          </a>
+        </li>
+
+        <li class="dropdown topbar-item">
+          <a
+            class="nav-link dropdown-toggle arrow-none nav-icon"
+            data-bs-toggle="dropdown"
+            href="#"
+            role="button"
+            aria-haspopup="false"
+            aria-expanded="false"
+            data-bs-offset="0,19"
+          >
+            <img
+              src="assets/images/users/avatar-1.jpg"
+              alt=""
+              class="thumb-md rounded-circle"
+            />
+          </a>
+          <div class="dropdown-menu dropdown-menu-end py-0">
+            <div
+              class="d-flex align-items-center dropdown-item py-2 bg-secondary-subtle"
+            >
+              <div class="flex-shrink-0">
+                <img
+                  src="assets/images/users/avatar-1.jpg"
+                  alt=""
+                  class="thumb-md rounded-circle"
+                />
+              </div>
+              <div class="flex-grow-1 ms-2 text-truncate align-self-center">
+                <h6
+                  class="my-0 fw-medium text-dark fs-13"
+                  id="user-display-name"
+                >
+                  User
+                </h6>
+                <small class="text-muted mb-0" id="user-email">Signed in</small>
+              </div>
+              <!--end media-body-->
+            </div>
+            <div class="dropdown-divider mt-0"></div>
+            <small class="text-muted px-2 pb-1 d-block">Settings</small>
+            <a class="dropdown-item" href="pages-profile-settings.html"
+              ><i class="las la-cog fs-18 me-1 align-text-bottom"></i>Account
+              Settings</a
+            >
+            <div class="dropdown-divider mb-0"></div>
+            <a class="dropdown-item text-danger" href="#" id="logout-link"
+              ><i class="las la-power-off fs-18 me-1 align-text-bottom"></i>
+              Logout</a
+            >
+          </div>
+        </li>
+      </ul>
+      <!--end topbar-nav-->
+    </nav>
+    <!-- end navbar-->
+  </div>
+</div>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import {
+    getAuth,
+    onAuthStateChanged,
+    signOut,
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+  // Match config used elsewhere
+  const firebaseConfig = {
+    apiKey: "AIzaSyBY8bpwNwpCSyJX9yWosWULSXzQS9_qfm0",
+    authDomain: "wmc-project-f5861.firebaseapp.com",
+    projectId: "wmc-project-f5861",
+    storageBucket: "wmc-project-f5861.firebasestorage.app",
+    messagingSenderId: "92154463945",
+    appId: "1:92154463945:web:d17fbfd846b0c1b1d1af18",
+    measurementId: "G-CFBW3D9592",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  const greetingEl = document.getElementById("greeting");
+  const displayNameEl = document.getElementById("user-display-name");
+  const emailEl = document.getElementById("user-email");
+  const logoutLink = document.getElementById("logout-link");
+
+  // Auth guard: redirect unauthenticated users to login page (skip for login/register pages)
+  const path = window.location.pathname;
+  const isAuthPage =
+    path.endsWith("/auth-login.html") ||
+    path.endsWith("/auth-register.html") ||
+    path.endsWith("/auth-recover-pw.html");
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      if (!isAuthPage) {
+        window.location.href = "auth-login.html";
+      }
+      return;
+    }
+    const name =
+      user.displayName && user.displayName.trim().length
+        ? user.displayName
+        : user.email || "User";
+    if (greetingEl) {
+      // Keep "Good Morning" wording but personalize the name
+      greetingEl.textContent = `Good Morning, ${name}!`;
+    }
+    if (displayNameEl) displayNameEl.textContent = name;
+    if (emailEl) emailEl.textContent = user.email || "";
+  });
+
+  if (logoutLink) {
+    logoutLink.addEventListener("click", async (e) => {
+      e.preventDefault();
+      try {
+        await signOut(auth);
+      } catch (e) {
+        // ignore
+      } finally {
+        window.location.href = "auth-login.html";
+      }
+    });
+  }
+</script>
