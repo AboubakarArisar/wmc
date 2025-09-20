@@ -6,12 +6,17 @@
 </head>
 
 <body>
+    <!-- Top Bar Start -->
     @@include('./partials/topbar.html')
+    <!-- Top Bar End -->
+    <!-- leftbar-tab-menu -->
     @@include('./partials/startbar.html')
+    <!-- end leftbar-tab-menu-->
 
     <div class="page-wrapper">
+        <!-- Page Content-->
         <div class="page-content">
-            <div class="container-fluid"> 
+            <div class="container-fluid">
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="page-title-box d-md-flex justify-content-md-between align-items-center">
@@ -22,7 +27,7 @@
                                     <li class="breadcrumb-item"><a href="#">Ecommerce</a></li>
                                     <li class="breadcrumb-item active">Orders</li>
                                 </ol>
-                            </div>                                
+                            </div>                            
                         </div>
                     </div>
                 </div>
@@ -32,10 +37,13 @@
                             <div class="card-header">
                                 <div class="row align-items-center">
                                     <div class="col">                      
-                                        <h4 class="card-title">Orders</h4>                      
+                                        <h4 class="card-title">All Orders</h4>                      
                                     </div>
                                     <div class="col-auto">                      
-                                        <button class="btn btn-primary"><i class="fas fa-plus me-1"></i> Add Order</button>                   
+                                        <div class="search-box">
+                                            <input type="text" class="form-control" id="searchInput" placeholder="Search orders by customer or email...">
+                                            <i class="fas fa-search search-icon"></i>
+                                        </div>                   
                                     </div>
                                 </div>                                  
                             </div>
@@ -44,7 +52,6 @@
                                     <table class="table mb-0">
                                         <thead class="table-light">
                                           <tr>
-                                            <th>Order ID</th>
                                             <th>Customer</th>
                                             <th>Email</th>
                                             <th>Date</th>
@@ -54,7 +61,7 @@
                                         </thead>
                                         <tbody id="ordersTableBody">
                                             <tr>
-                                                <td colspan="6" class="text-center">
+                                                <td colspan="5" class="text-center">
                                                     <div class="spinner-border" role="status">
                                                         <span class="visually-hidden">Loading...</span>
                                                     </div>
@@ -73,7 +80,7 @@
 
     @@include('./partials/endbar.html')
     @@include('./partials/vendorjs.html')
-    
+
     <!-- Firebase CDN -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
@@ -91,55 +98,173 @@
             appId: "1:693992819935:web:1124e6c059bb5d7d742d6a",
             measurementId: "G-W1XF11SNBM"
         };
-        
         firebase.initializeApp(firebaseConfig);
     </script>
     
     <script src="assets/js/services/firebase-service.js"></script>
+
+    <style>
+        .search-box {
+            position: relative;
+            width: 300px;
+        }
+        .search-box input {
+            padding-right: 40px;
+        }
+        .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+        .customer-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #e9ecef;
+        }
+        .avatar-placeholder {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 16px;
+        }
+    </style>
+
     <script>
+        let allOrders = []; // Store all orders for search functionality
+        
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('Loading orders page...');
             
+            // Wait for Firebase to be ready
             await new Promise(resolve => setTimeout(resolve, 2000));
             
             const tbody = document.getElementById('ordersTableBody');
+            const searchInput = document.getElementById('searchInput');
             
             try {
                 console.log('Fetching orders from Firebase...');
-                const orders = await window.FirebaseDataService.getOrders();
-                console.log('Orders loaded:', orders);
+                allOrders = await window.FirebaseDataService.getOrders();
+                console.log('Orders loaded:', allOrders);
                 
-                if (orders.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No orders found</td></tr>';
+                if (allOrders.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No orders found</td></tr>';
                     return;
                 }
                 
-                tbody.innerHTML = orders.map(order => `
-                    <tr>
-                        <td><a href="ecommerce-order-details.html?id=${order.id}">#${order.id.substring(0, 8)}</a></td>
-                        <td>
-                            <p class="d-inline-block align-middle mb-0">
-                                <span class="d-block align-middle mb-0 product-name text-body">${order.name || 'N/A'}</span>
-                                <span class="text-muted font-13">User ID: ${order.userID ? order.userID.substring(0, 10) + '...' : 'N/A'}</span> 
-                            </p>
-                        </td>
-                        <td>${order.email || 'N/A'}</td>
-                        <td>${order.date || 'N/A'}</td>
-                        <td>
-                            <span class="badge bg-success-subtle text-success"><i class="fas fa-check me-1"></i> Completed</span>
-                        </td>
-                        <td class="text-end">                                                       
-                            <a href="#"><i class="las la-pen text-secondary fs-18"></i></a>
-                            <a href="#"><i class="las la-trash-alt text-secondary fs-18"></i></a>
-                        </td>
-                    </tr>
-                `).join('');
+                // Initial render
+                renderOrders(allOrders);
+                
+                // Search functionality
+                searchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase().trim();
+                    if (searchTerm === '') {
+                        renderOrders(allOrders);
+                    } else {
+                        const filteredOrders = allOrders.filter(order => {
+                            const email = (order.email || '').toLowerCase();
+                            const customerName = email !== '' ? email.split('@')[0].toLowerCase() : '';
+                            return email.includes(searchTerm) || customerName.includes(searchTerm);
+                        });
+                        renderOrders(filteredOrders);
+                    }
+                });
                 
             } catch (error) {
                 console.error('Error loading orders:', error);
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Error loading orders: ' + error.message + '</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error loading orders: ' + error.message + '</td></tr>';
             }
         });
+        
+        function renderOrders(orders) {
+            const tbody = document.getElementById('ordersTableBody');
+            
+            if (orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No orders found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = orders.map(order => {
+                // Safe data extraction with null checks
+                const email = order.email || 'N/A';
+                const customerName = email !== 'N/A' ? email.split('@')[0] : 'Unknown';
+                
+                // Date handling
+                let orderDate = 'N/A';
+                if (order.createdAt) {
+                    try {
+                        orderDate = new Date(order.createdAt).toLocaleDateString();
+                    } catch (e) {
+                        orderDate = 'Invalid Date';
+                    }
+                } else if (order.date) {
+                    try {
+                        orderDate = new Date(order.date).toLocaleDateString();
+                    } catch (e) {
+                        orderDate = 'Invalid Date';
+                    }
+                }
+                
+                // Status handling
+                const status = order.status || 'Pending';
+                let statusClass = 'bg-warning-subtle text-warning';
+                let statusIcon = 'clock';
+                
+                if (status.toLowerCase() === 'completed' || status.toLowerCase() === 'delivered') {
+                    statusClass = 'bg-success-subtle text-success';
+                    statusIcon = 'check';
+                } else if (status.toLowerCase() === 'cancelled' || status.toLowerCase() === 'failed') {
+                    statusClass = 'bg-danger-subtle text-danger';
+                    statusIcon = 'times';
+                } else if (status.toLowerCase() === 'processing' || status.toLowerCase() === 'shipped') {
+                    statusClass = 'bg-info-subtle text-info';
+                    statusIcon = 'truck';
+                }
+                
+                // Profile picture handling
+                let profilePicture = '';
+                if (order.profilePicture && order.profilePicture.trim() !== '') {
+                    profilePicture = `<img src="${order.profilePicture}" alt="${customerName}" class="customer-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">`;
+                }
+                
+                // Avatar placeholder (will show if no profile picture or if image fails to load)
+                const avatarPlaceholder = `<div class="avatar-placeholder bg-primary" style="display: ${order.profilePicture && order.profilePicture.trim() !== '' ? 'none' : 'flex'};">${customerName.charAt(0).toUpperCase()}</div>`;
+                
+                return `
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                ${profilePicture}
+                                ${avatarPlaceholder}
+                                <div class="ms-3">
+                                    <h6 class="mb-0">${customerName}</h6>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${email}</td>
+                        <td>${orderDate}</td>
+                        <td>
+                            <span class="badge ${statusClass}">
+                                <i class="fas fa-${statusIcon} me-1"></i>
+                                ${status}
+                            </span>
+                        </td>
+                        <td class="text-end">                                                       
+                            <a href="#" title="Edit"><i class="las la-edit text-secondary fs-18"></i></a>
+                            <a href="#" title="Delete"><i class="las la-trash-alt text-secondary fs-18"></i></a>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
     </script>
 </body>
 </html>

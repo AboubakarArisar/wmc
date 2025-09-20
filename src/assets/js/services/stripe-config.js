@@ -1,11 +1,23 @@
-// Stripe Configuration
-// Client-side only - NO SERVER CALLS
+// Stripe Configuration - LIVE KEYS
+// This file uses LIVE Stripe keys for both development and production
 
+// Live Stripe Configuration
 const STRIPE_CONFIG = {
-  publishableKey: 'pk_test_51RqZ9V6K3mHtUMYglwGmqpmjb8kvuvQ1HWVnM5fQoVBkNkSKxYrXquaVv03Fyvd7kR7TEXoEAdg0kXwSJn8UDywF00XyqfIA2F'
+  // Replace these with your actual LIVE keys from .env
+  publishableKey: "pk_live_YOUR_LIVE_PUBLISHABLE_KEY_HERE", // Replace with your live publishable key
+  secretKey: "sk_live_YOUR_COMPLETE_LIVE_SECRET_KEY_HERE", // Replace with your complete live secret key
+  // Note: Secret key should only be used on server-side for security
+  // For client-side, only use the publishable key
 };
 
-// For client-side use only
-export const STRIPE_PUBLISHABLE_KEY = STRIPE_CONFIG.publishableKey;
+// For client-side, only expose the publishable key
+const STRIPE_PUBLISHABLE_KEY = STRIPE_CONFIG.publishableKey;
 
-export default STRIPE_CONFIG;
+// Export for use in other files
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { STRIPE_CONFIG, STRIPE_PUBLISHABLE_KEY };
+} else {
+  // Browser environment
+  window.STRIPE_CONFIG = STRIPE_CONFIG;
+  window.STRIPE_PUBLISHABLE_KEY = STRIPE_PUBLISHABLE_KEY;
+}

@@ -6,12 +6,17 @@
 </head>
 
 <body>
+    <!-- Top Bar Start -->
     @@include('./partials/topbar.html')
+    <!-- Top Bar End -->
+    <!-- leftbar-tab-menu -->
     @@include('./partials/startbar.html')
+    <!-- end leftbar-tab-menu-->
 
     <div class="page-wrapper">
+        <!-- Page Content-->
         <div class="page-content">
-            <div class="container-fluid"> 
+            <div class="container-fluid">
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="page-title-box d-md-flex justify-content-md-between align-items-center">
@@ -22,7 +27,7 @@
                                     <li class="breadcrumb-item"><a href="#">Apps</a></li>
                                     <li class="breadcrumb-item active">Contact List</li>
                                 </ol>
-                            </div>                                
+                            </div>                            
                         </div>
                     </div>
                 </div>
@@ -35,7 +40,10 @@
                                         <h4 class="card-title">All Contacts</h4>                      
                                     </div>
                                     <div class="col-auto">                      
-                                        <button class="btn btn-primary"><i class="fas fa-plus me-1"></i> Add Contact</button>                   
+                                        <div class="search-box">
+                                            <input type="text" class="form-control" id="searchInput" placeholder="Search contacts by name or email...">
+                                            <i class="fas fa-search search-icon"></i>
+                                        </div>                   
                                     </div>
                                 </div>                                  
                             </div>
@@ -44,7 +52,6 @@
                                     <table class="table mb-0">
                                         <thead class="table-light">
                                           <tr>
-                                            <th>Contact ID</th>
                                             <th>Name</th>
                                             <th>Email</th>
                                             <th>Phone</th>
@@ -55,7 +62,7 @@
                                         </thead>
                                         <tbody id="contactsTableBody">
                                             <tr>
-                                                <td colspan="7" class="text-center">
+                                                <td colspan="6" class="text-center">
                                                     <div class="spinner-border" role="status">
                                                         <span class="visually-hidden">Loading...</span>
                                                     </div>
@@ -74,7 +81,7 @@
 
     @@include('./partials/endbar.html')
     @@include('./partials/vendorjs.html')
-    
+
     <!-- Firebase CDN -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
@@ -92,62 +99,160 @@
             appId: "1:693992819935:web:1124e6c059bb5d7d742d6a",
             measurementId: "G-W1XF11SNBM"
         };
-        
         firebase.initializeApp(firebaseConfig);
     </script>
     
     <script src="assets/js/services/firebase-service.js"></script>
+
+    <style>
+        .search-box {
+            position: relative;
+            width: 300px;
+        }
+        .search-box input {
+            padding-right: 40px;
+        }
+        .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+        .contact-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #e9ecef;
+        }
+        .avatar-placeholder {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 16px;
+        }
+    </style>
+
     <script>
+        let allContacts = []; // Store all contacts for search functionality
+        
         document.addEventListener('DOMContentLoaded', async function() {
-            console.log('Loading contact list page...');
+            console.log('Loading contacts page...');
             
+            // Wait for Firebase to be ready
             await new Promise(resolve => setTimeout(resolve, 2000));
             
             const tbody = document.getElementById('contactsTableBody');
+            const searchInput = document.getElementById('searchInput');
             
             try {
                 console.log('Fetching contacts from Firebase...');
-                const customers = await window.FirebaseDataService.getCustomers();
-                console.log('Contacts loaded:', customers);
+                allContacts = await window.FirebaseDataService.getCustomers();
+                console.log('Contacts loaded:', allContacts);
                 
-                if (customers.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No contacts found</td></tr>';
+                if (allContacts.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No contacts found</td></tr>';
                     return;
                 }
                 
-                tbody.innerHTML = customers.map(contact => `
-                    <tr>
-                        <td><a href="#">#${contact.id.substring(0, 8)}</a></td>
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <div class="avatar-sm bg-soft-primary rounded-circle me-3">
-                                    <span class="avatar-title">${(contact.name || contact.email || 'U').charAt(0).toUpperCase()}</span>
-                                </div>
-                                <div>
-                                    <h6 class="mb-0">${contact.name || 'Unknown'}</h6>
-                                    <small class="text-muted">ID: ${contact.id.substring(0, 12)}...</small>
-                                </div>
-                            </div>
-                        </td>
-                        <td>${contact.email || 'N/A'}</td>
-                        <td>${contact.phone || 'N/A'}</td>
-                        <td>${contact.location || contact.address || 'N/A'}</td>
-                        <td>
-                            <span class="badge bg-success-subtle text-success"><i class="fas fa-check me-1"></i> Active</span>
-                        </td>
-                        <td class="text-end">                                                       
-                            <a href="#"><i class="las la-phone text-secondary fs-18"></i></a>
-                            <a href="#"><i class="las la-envelope text-secondary fs-18"></i></a>
-                            <a href="#"><i class="las la-edit text-secondary fs-18"></i></a>
-                        </td>
-                    </tr>
-                `).join('');
+                // Initial render
+                renderContacts(allContacts);
+                
+                // Search functionality
+                searchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase().trim();
+                    if (searchTerm === '') {
+                        renderContacts(allContacts);
+                    } else {
+                        const filteredContacts = allContacts.filter(contact => {
+                            const email = (contact.email || '').toLowerCase();
+                            const name = email !== '' ? email.split('@')[0].toLowerCase() : '';
+                            return email.includes(searchTerm) || name.includes(searchTerm);
+                        });
+                        renderContacts(filteredContacts);
+                    }
+                });
                 
             } catch (error) {
                 console.error('Error loading contacts:', error);
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Error loading contacts: ' + error.message + '</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Error loading contacts: ' + error.message + '</td></tr>';
             }
         });
+        
+        function renderContacts(contacts) {
+            const tbody = document.getElementById('contactsTableBody');
+            
+            if (contacts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No contacts found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = contacts.map(contact => {
+                // Safe data extraction with null checks
+                const email = contact.email || 'N/A';
+                const name = email !== 'N/A' ? email.split('@')[0] : 'Unknown';
+                
+                // Phone number handling
+                let phone = 'N/A';
+                if (contact.emergencyContact && Array.isArray(contact.emergencyContact) && contact.emergencyContact.length > 0) {
+                    const emergencyContact = contact.emergencyContact[0];
+                    if (emergencyContact && emergencyContact.phone) {
+                        phone = emergencyContact.phone;
+                    }
+                }
+                
+                // Location (not available in current data structure)
+                const location = 'N/A';
+                
+                // Status - determine based on card order status
+                const cardStatus = contact.cardOrderStatus || 'Not Ordered';
+                const status = cardStatus === 'Not Ordered' ? 'Inactive' : 'Active';
+                const statusClass = status === 'Active' ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning';
+                
+                // Profile picture handling
+                let profilePicture = '';
+                if (contact.profilePicture && contact.profilePicture.trim() !== '') {
+                    profilePicture = `<img src="${contact.profilePicture}" alt="${name}" class="contact-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">`;
+                }
+                
+                // Avatar placeholder (will show if no profile picture or if image fails to load)
+                const avatarPlaceholder = `<div class="avatar-placeholder bg-primary" style="display: ${contact.profilePicture && contact.profilePicture.trim() !== '' ? 'none' : 'flex'};">${name.charAt(0).toUpperCase()}</div>`;
+                
+                return `
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                ${profilePicture}
+                                ${avatarPlaceholder}
+                                <div class="ms-3">
+                                    <h6 class="mb-0">${name}</h6>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${email}</td>
+                        <td>${phone}</td>
+                        <td>${location}</td>
+                        <td>
+                            <span class="badge ${statusClass}">
+                                <i class="fas fa-${status === 'Active' ? 'check' : 'clock'} me-1"></i>
+                                ${status}
+                            </span>
+                        </td>
+                        <td class="text-end">                                                       
+                            <a href="tel:${phone}" title="Call"><i class="las la-phone text-secondary fs-18"></i></a>
+                            <a href="mailto:${email}" title="Email"><i class="las la-envelope text-secondary fs-18"></i></a>
+                            <a href="#" title="Edit"><i class="las la-edit text-secondary fs-18"></i></a>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
     </script>
 </body>
 </html>
