@@ -326,6 +326,7 @@
     <script src="assets/js/services/firebase-service.js"></script>
     <script src="assets/js/services/firebase-products.js"></script>
     <script src="assets/js/services/firebase-users-chart.js"></script>
+    <script src="assets/js/services/consolidated-data.js"></script>
 
     <!-- Dashboard Script -->
     <script>
@@ -428,17 +429,11 @@
             // Load New Users Chart with REAL data from Firebase
             // Load New Users Chart with REAL data from Firebase
             // Load New Users Chart with REAL data from Firebase
+            // Load New Users Chart from existing Firebase users
             async function loadNewUsersChart() {
                 try {
-                    console.log("🔄 Loading new users chart data from Firebase...");
-                    
-                    if (!window.FirebaseUsersChartService) {
-                        console.error("❌ FirebaseUsersChartService not available");
-                        showNoDataMessage();
-                        return;
-                    }
-                    
-                    const userData = await window.FirebaseUsersChartService.getNewUsersData();
+                    console.log("🔄 Loading new users chart from existing users data...");
+                    const userData = await window.ConsolidatedDataService.getNewUsersData();
                     
                     if (!userData) {
                         console.log("❌ No user data available");
@@ -509,7 +504,7 @@
                         chart.render();
                         chartElement._apexChart = chart;
                         
-                        console.log("📊 New users chart updated with real Firebase data");
+                        console.log("📊 New users chart updated with real data");
                     } else {
                         console.error("❌ Chart element not found");
                     }
@@ -573,17 +568,17 @@
 
             // Load all data
             // Load Monthly Income data from Stripe
+            // Load Monthly Income data from existing Stripe balance
             async function loadMonthlyIncome() {
                 try {
-                    console.log("🔄 Loading monthly income data from Stripe...");
-                    const response = await fetch("/.netlify/functions/stripe-monthly-income");
-                    const result = await response.json();
+                    console.log("🔄 Loading monthly income data from Stripe balance...");
+                    const data = await window.ConsolidatedDataService.getMonthlyIncomeData();
                     
-                    if (result.success) {
-                        console.log("✅ Monthly income data loaded:", result.data);
-                        updateMonthlyIncomeChart(result.data);
+                    if (data) {
+                        console.log("✅ Monthly income data loaded:", data);
+                        updateMonthlyIncomeChart(data);
                     } else {
-                        console.error("❌ Error loading monthly income:", result.error);
+                        console.error("❌ No monthly income data available");
                     }
                 } catch (error) {
                     console.error("❌ Error loading monthly income:", error);
@@ -676,18 +671,11 @@
             }
             // Load Latest Cards from Firebase (Registered Users)
             // Load Latest Cards from Firebase (Registered Users)
+            // Load Latest Cards from existing Firebase users
             async function loadLatestCards() {
                 try {
-                    console.log("🔄 Loading latest cards from Firebase...");
-                    console.log("FirebaseCardsService available:", !!window.FirebaseCardsService);
-                    
-                    if (!window.FirebaseCardsService) {
-                        console.error("❌ FirebaseCardsService not available");
-                        displayLatestCards([]);
-                        return;
-                    }
-                    
-                    const cards = await window.FirebaseCardsService.getLatestCards();
+                    console.log("🔄 Loading latest cards from existing users data...");
+                    const cards = await window.ConsolidatedDataService.getLatestCards();
                     console.log("✅ Cards loaded:", cards);
                     displayLatestCards(cards);
                 } catch (error) {
