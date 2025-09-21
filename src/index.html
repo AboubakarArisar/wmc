@@ -349,10 +349,10 @@
                         console.log('✅ Real Stripe metrics loaded:', metrics);
                         
                         // Update dashboard cards with real data
-                        setText('.revenue-card', 'kr' + metrics.totalRevenue.toLocaleString());
+                        setText('.revenue-card', metrics.totalRevenue.toLocaleString() + "kr");
                         setText('.orders-card', metrics.newOrders.toLocaleString());
                         setText('.cancelled-card', metrics.cancellations || 0);
-                        setText('.avg-order-card', 'kr' + metrics.averageOrderValue.toLocaleString());
+                        setText('.avg-order-card', metrics.averageOrderValue.toLocaleString() + "kr");
                         
                         console.log('🎉 Dashboard updated with LIVE Stripe data!');
                     } else {
