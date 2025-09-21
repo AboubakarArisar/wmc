@@ -555,7 +555,81 @@
             }
 
             // Load all data
+            // Load Country Sales from Stripe
+            async function loadCountrySales() {
+                try {
+                    console.log("🔄 Loading country sales data from Stripe...");
+                    const response = await fetch("/.netlify/functions/stripe-country-sales");
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        console.log("✅ Country sales data loaded:", result.data);
+                        displayCountrySales(result.data);
+                    } else {
+                        console.error("❌ Country sales error:", result.error);
+                        displayCountrySales([]);
+                    }
+                } catch (error) {
+                    console.error("❌ Error loading country sales:", error);
+                    displayCountrySales([]);
+                }
+            }
+
+            // Display country sales data
+            function displayCountrySales(countryData) {
+                const countrySalesBody = document.getElementById("countrySalesBody");
+                if (countrySalesBody) {
+                    countrySalesBody.innerHTML = "";
+                    
+                    if (countryData.length === 0) {
+                        countrySalesBody.innerHTML = "<tr><td colspan='3' class='text-center text-muted'>No country data available</td></tr>";
+                        return;
+                    }
+
+                    // Default countries with flags
+                    const defaultCountries = [
+                        { name: "USA", flag: "us_flag.jpg" },
+                        { name: "Spain", flag: "spain_flag.jpg" },
+                        { name: "French", flag: "french_flag.jpg" },
+                        { name: "Germany", flag: "germany_flag.jpg" },
+                        { name: "Bahamas", flag: "baha_flag.jpg" },
+                        { name: "Russia", flag: "russia_flag.jpg" }
+                    ];
+
+                    // Merge with real data
+                    const countries = defaultCountries.map(defaultCountry => {
+                        const realData = countryData.find(c => c.name === defaultCountry.name);
+                        return {
+                            ...defaultCountry,
+                            revenue: realData ? realData.revenue : 0,
+                            percentage: realData ? realData.percentage : 0,
+                            count: realData ? realData.count : 0
+                        };
+                    });
+
+                    countries.forEach(country => {
+                        const row = `
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="assets/images/flags/${country.flag}" alt="" class="me-2 thumb-sm rounded-circle">
+                                        <span class="text-dark">${country.name}</span>
+                                    </div>
+                                </td>
+                                <td>$${country.revenue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                <td>
+                                    <div class="progress" style="height: 5px;">
+                                        <div class="progress-bar bg-primary" role="progressbar" style="width: ${country.percentage}%;" aria-valuenow="${country.percentage}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        countrySalesBody.insertAdjacentHTML("beforeend", row);
+                    });
+                }
+            }
             await loadRealStripeData();
+            await loadCountrySales();
             createMiniCharts();
             loadMonthlyIncomeChart();
             loadNewUsersChart();
