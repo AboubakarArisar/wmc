@@ -216,25 +216,11 @@
                 const cardStatus = user.cardOrderStatus || 'Not Ordered';
                 const statusClass = cardStatus === 'Not Ordered' ? 'bg-warning-subtle text-warning' : 'bg-success-subtle text-success';
 
-                // Profile picture handling
-                let profilePicture = '';
-                if (user.profilePicture && user.profilePicture.trim() !== '') {
-                    profilePicture = `<img src="${user.profilePicture}" alt="${name.charAt(0)}" class="user-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">`;
-                }
-
-                // Avatar placeholder (will show if no profile picture or if image fails to load)
-                const avatarPlaceholder = `<div class="avatar-placeholder bg-primary" style="display: ${user.profilePicture && user.profilePicture.trim() !== '' ? 'none' : 'flex'};">${name !== 'N/A' ? name.toUpperCase() : ''}</div>`;
-
+                // Only show name, no profile picture or placeholder
                 return `
                     <tr>
                         <td>
-                            <div class="d-flex align-items-center">
-                                ${profilePicture}
-                                ${avatarPlaceholder}
-                                <div class="ms-3">
-                                    <h6 class="mb-0">${name}</h6>
-                                </div>
-                            </div>
+                            <h6 class="mb-0">${name}</h6>
                         </td>
                         <td>${email}</td>
                         <td>${birthDate}</td>

@@ -234,7 +234,7 @@
                                     <table class="table mb-0">
                                         <thead class="table-light">
                                             <tr>
-                                                <th>User Name</th>
+                                                <th>Name</th>
                                             </tr>
                                         </thead>
                                         <tbody id="popularProductsBody">
@@ -633,7 +633,7 @@
                         yaxis: {
                             labels: {
                                 formatter: function (val) {
-                                    return "$" + val.toFixed(0);
+                                    return "kr" + val.toFixed(0); // <-- Hardcoded $
                                 }
                             }
                         },
@@ -661,7 +661,7 @@
                         tooltip: {
                             y: {
                                 formatter: function(val) {
-                                    return "$" + val.toFixed(2);
+                                    return "kr" + val.toFixed(2); // <-- Hardcoded $
                                 }
                             }
                         }
@@ -712,14 +712,19 @@
                     
                     const cards = registeredUsers.slice(0, 5).map(user => ({
                         id: user.id,
-                        name: user.email ? user.email.split("@")[0] : "User",
-                        cardType: "Premium Card",
-                        registrationDate: user.createdAt ? new Date(user.createdAt.seconds * 1000).toLocaleDateString() : "N/A",
-                        status: "Registered",
-                        email: user.email,
+                        name: (user.firstName || "") + " " + (user.lastName || ""),
+                        cardType: user.cardType || "Premium Card",
+                        registrationDate: user.createdAt
+                            ? (user.createdAt.seconds
+                                ? new Date(user.createdAt.seconds * 1000).toLocaleDateString()
+                                : (user.createdAt.toDate
+                                    ? user.createdAt.toDate().toLocaleDateString()
+                                    : new Date(user.createdAt).toLocaleDateString()))
+                            : "N/A",
+                        status: user.cardOrderStatus || "Registered",
+                        email: user.email || "N/A",
                         emergencyContact: user.emergencyContact || "N/A"
                     }));
-                    
                     console.log("✅ Cards generated:", cards);
                     displayLatestCards(cards);
                 } catch (error) {
@@ -744,12 +749,19 @@
                         const row = `
                             <tr>
                                 <td>
-                                    <div class="d-flex align-items-center">
+                                    <div class="d-flex align-items-center mb-1">
                                         <div class="avatar-sm bg-soft-primary rounded-circle me-3">
                                             <i class="fas fa-user"></i>
                                         </div>
                                         <div>
                                             <h6 class="mb-0">${card.name}</h6>
+                                            <div class="small text-muted">
+                                                <div><strong>Card Type:</strong> ${card.cardType}</div>
+                                                <div><strong>Registration Date:</strong> ${card.registrationDate}</div>
+                                                <div><strong>Status:</strong> ${card.status}</div>
+                                                <div><strong>Email:</strong> ${card.email}</div>
+                                                <div><strong>Emergency Contact:</strong> ${card.emergencyContact}</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </td>
