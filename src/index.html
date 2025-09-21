@@ -347,10 +347,10 @@
                         console.log('✅ Real Stripe metrics loaded:', metrics);
                         
                         // Update dashboard cards with real data
-                        setText('.revenue-card', '$' + metrics.totalRevenue.toLocaleString());
+                        setText('.revenue-card', 'kr' + metrics.totalRevenue.toLocaleString());
                         setText('.orders-card', metrics.totalOrders.toLocaleString());
                         setText('.cancelled-card', metrics.cancelledOrders || 0);
-                        setText('.avg-order-card', '$' + metrics.averageOrderValue.toLocaleString());
+                        setText('.avg-order-card', 'kr' + metrics.averageOrderValue.toLocaleString());
                         
                         // Update country sales with real data
                         loadCountrySales(metrics.countryData);
