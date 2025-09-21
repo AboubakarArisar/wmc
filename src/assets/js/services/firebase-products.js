@@ -1,11 +1,11 @@
-// Firebase Products Service - Get users with registered card status
-class FirebaseProductsService {
+// Firebase Cards Service - Get users with registered card status
+class FirebaseCardsService {
   constructor() {
     this.cache = new Map();
   }
 
-  // Get users with registered card status as "products"
-  async getPopularProducts() {
+  // Get users with registered card status as "cards"
+  async getLatestCards() {
     try {
       console.log('🔄 Fetching registered users from Firebase...');
       
@@ -18,22 +18,20 @@ class FirebaseProductsService {
       }));
 
       console.log('✅ Found registered users:', registeredUsers.length);
+      console.log('Registered users data:', registeredUsers);
 
-      // Convert users to "product" format for display
-      const products = registeredUsers.slice(0, 5).map((user, index) => ({
+      // Convert users to "card" format for display
+      const cards = registeredUsers.slice(0, 5).map((user, index) => ({
         id: user.id,
         name: user.displayName || user.email || 'User',
-        price: Math.floor(Math.random() * 200) + 50, // Random price for demo
-        originalPrice: Math.floor(Math.random() * 300) + 100,
-        sold: Math.floor(Math.random() * 100) + 10,
-        totalSold: Math.floor(Math.random() * 200) + 50,
-        status: "Stock",
-        image: "user",
+        cardType: "Premium Card", // Fixed card type
+        registrationDate: user.createdAt ? new Date(user.createdAt.seconds * 1000).toLocaleDateString() : 'N/A',
+        status: "Registered",
         email: user.email,
-        registrationDate: user.createdAt || new Date()
+        emergencyContact: user.emergencyContact || 'N/A'
       }));
 
-      return products;
+      return cards;
     } catch (error) {
       console.error("Error fetching registered users:", error);
       return [];
@@ -56,4 +54,4 @@ class FirebaseProductsService {
 }
 
 // Create global instance
-window.FirebaseProductsService = new FirebaseProductsService();
+window.FirebaseCardsService = new FirebaseCardsService();
