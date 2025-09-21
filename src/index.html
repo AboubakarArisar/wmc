@@ -325,6 +325,7 @@
     
     <script src="assets/js/services/firebase-service.js"></script>
     <script src="assets/js/services/firebase-products.js"></script>
+    <script src="assets/js/services/firebase-users-chart.js"></script>
 
     <!-- Dashboard Script -->
     <script>
@@ -424,34 +425,110 @@
             }
 
             // Load New Users Chart
-            function loadNewUsersChart() {
-                var options = {
+            // Load New Users Chart with REAL data from Firebase
+            async function loadNewUsersChart() {
+                try {
+                    console.log("🔄 Loading new users chart data from Firebase...");
+                    const userData = await window.FirebaseUsersChartService.getNewUsersData();
+                    console.log("✅ New users data loaded:", userData);
+                    
+                    const options = {
+                        chart: {
+                            height: 300,
+                            type: "donut",
+                        },
+                        series: [userData.current, userData.new, userData.retargeted],
+                        labels: ["Current", "New", "Retargeted"],
+                        colors: ["#8b5cf6", "#06b6d4", "#f59e0b"],
+                        legend: {
+                            position: "bottom",
+                            horizontalAlign: "center",
+                            formatter: function(seriesName, opts) {
+                                return seriesName + ": " + userData.counts[seriesName.toLowerCase()] + " users (" + opts.w.globals.series[opts.seriesIndex] + "%)";
+                            }
+                        },
+                        plotOptions: {
+                            pie: {
+                                donut: {
+                                    size: "70%",
+                                    labels: {
+                                        show: true,
+                                        total: {
+                                            show: true,
+                                            label: "Total Users",
+                                            formatter: function() {
+                                                return userData.counts.total;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        dataLabels: {
+                            enabled: true,
+                            formatter: function (val) {
+                                return val + "%";
+                            }
+                        },
+                        tooltip: {
+                            y: {
+                                formatter: function(val, opts) {
+                                    const seriesName = opts.w.globals.labels[opts.seriesIndex].toLowerCase();
+                                    return userData.counts[seriesName] + " users (" + val + "%)";
+                                }
+                            }
+                        }
+                    };
+                    
+                    const chartElement = document.querySelector("#newUsersChart");
+                    if (chartElement) {
+                        // Destroy existing chart if it exists
+                        if (chartElement._apexChart) {
+                            chartElement._apexChart.destroy();
+                        }
+                        
+                        const chart = new ApexCharts(chartElement, options);
+                        chart.render();
+                        chartElement._apexChart = chart;
+                        
+                        console.log("📊 New users chart updated with real Firebase data");
+                    }
+                } catch (error) {
+                    console.error("❌ Error loading new users chart:", error);
+                    // Fallback to static data if error
+                    loadNewUsersChartStatic();
+                }
+            }
+
+            // Fallback static chart function
+            function loadNewUsersChartStatic() {
+                const options = {
                     chart: {
                         height: 300,
-                        type: 'donut',
+                        type: "donut",
                     },
                     series: [65, 25, 10],
-                    labels: ['Current', 'New', 'Retargeted'],
-                    colors: ['#8b5cf6', '#06b6d4', '#f59e0b'],
+                    labels: ["Current", "New", "Retargeted"],
+                    colors: ["#8b5cf6", "#06b6d4", "#f59e0b"],
                     legend: {
-                        position: 'bottom',
-                        horizontalAlign: 'center'
+                        position: "bottom",
+                        horizontalAlign: "center"
                     },
                     plotOptions: {
                         pie: {
                             donut: {
-                                size: '70%'
+                                size: "70%"
                             }
                         }
                     },
                     dataLabels: {
                         enabled: true,
                         formatter: function (val) {
-                            return val + "%"
+                            return val + "%";
                         }
                     }
                 };
-                var chart = new ApexCharts(document.querySelector("#newUsersChart"), options);
+                const chart = new ApexCharts(document.querySelector("#newUsersChart"), options);
                 chart.render();
             }
 
@@ -730,7 +807,7 @@
             await loadLatestCards();
             createMiniCharts();
             loadMonthlyIncomeChart();
-            loadNewUsersChart();
+            await loadNewUsersChart();
             await loadDocuments();
         });
     </script>
