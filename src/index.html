@@ -572,28 +572,26 @@
             // Load Monthly Income data from Stripe
             // Load Monthly Income data from existing Stripe balance
             // Load Monthly Income data from existing Stripe balance
-            async function loadMonthlyIncome() {
-                try {
-                    console.log("🔄 Loading monthly income data from Stripe...");
-                    const response = await fetch("/.netlify/functions/stripe-balance");
-                    const result = await response.json();
+        async function loadMonthlyIncome() {
+    try {
+        const response = await fetch("/.netlify/functions/stripe-balance");
+        const result = await response.json();
 
-                    if (result.success && result.data.monthlyIncomes && Array.isArray(result.data.monthlyIncomes)) {
-                        const monthlyIncomes = result.data.monthlyIncomes;
-                        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                        // If less than 12 months, pad with zeros or slice
-                        const data = months.map((month, i) => ({
-                            month,
-                            income: monthlyIncomes[i] || 0
-                        }));
-                        updateMonthlyIncomeChart(data);
-                    } else {
-                        console.error("❌ No monthly income data available");
-                    }
-                } catch (error) {
-                    console.error("❌ Error loading monthly income:", error);
-                }
-            }
+        if (result.success && result.data.monthlyIncomes && Array.isArray(result.data.monthlyIncomes)) {
+            const monthlyIncomes = result.data.monthlyIncomes;
+            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const data = months.map((month, i) => ({
+                month,
+                income: monthlyIncomes[i] || 0
+            }));
+            updateMonthlyIncomeChart(data);
+        } else {
+            console.error("❌ No monthly income data available");
+        }
+    } catch (error) {
+        console.error("❌ Error loading monthly income:", error);
+    }
+}
 
             function updateMonthlyIncomeChart(data) {
                 const chartElement = document.querySelector("#monthlyIncomeChart");
