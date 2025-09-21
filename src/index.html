@@ -725,30 +725,34 @@
                     popularProductsBody.innerHTML = "";
 
                     if (cards.length === 0) {
-                        popularProductsBody.innerHTML = "<tr><td class='text-center text-muted'>No registered users found</td></tr>";
+                        popularProductsBody.innerHTML = "<tr><td colspan='6' class='text-center text-muted'>No registered users found</td></tr>";
                         return;
                     }
 
                     cards.forEach(card => {
+                        // Format emergency contact
+                        let emergencyContact = "N/A";
+                        if (Array.isArray(card.emergencyContact) && card.emergencyContact.length > 0) {
+                            emergencyContact = card.emergencyContact.map(contact => {
+                                if (typeof contact === "object" && contact !== null) {
+                                    if (contact.name && contact.phone) return `${contact.name} (${contact.phone})`;
+                                    if (contact.name) return contact.name;
+                                    if (contact.phone) return contact.phone;
+                                }
+                                return typeof contact === "string" ? contact : "";
+                            }).filter(Boolean).join(", ");
+                        } else if (typeof card.emergencyContact === "string") {
+                            emergencyContact = card.emergencyContact;
+                        }
+
                         const row = `
                             <tr>
-                                <td>
-                                    <div class="d-flex align-items-center mb-1">
-                                        <div class="avatar-sm bg-soft-primary rounded-circle me-3">
-                                            <i class="fas fa-user"></i>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-0">${card.name}</h6>
-                                            <div class="small text-muted">
-                                                <div><strong>Card Type:</strong> ${card.cardType}</div>
-                                                <div><strong>Registration Date:</strong> ${card.registrationDate}</div>
-                                                <div><strong>Status:</strong> ${card.status}</div>
-                                                <div><strong>Email:</strong> ${card.email}</div>
-                                                <div><strong>Emergency Contact:</strong> ${card.emergencyContact}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
+                                <td>${card.name || "N/A"}</td>
+                                <td>${card.cardType || "N/A"}</td>
+                                <td>${card.registrationDate || "N/A"}</td>
+                                <td>${card.status || "N/A"}</td>
+                                <td>${card.email || "N/A"}</td>
+                                <td>${emergencyContact}</td>
                             </tr>
                         `;
                         popularProductsBody.insertAdjacentHTML("beforeend", row);
