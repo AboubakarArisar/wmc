@@ -11,72 +11,77 @@ class FirebaseUsersChartService {
       
       const usersRef = firebase.firestore().collection("users");
       
+      // Get all users first
+      const allUsersSnapshot = await usersRef.get();
+      const allUsers = allUsersSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      
+      console.log('📊 Total users found:', allUsers.length);
+      
+      if (allUsers.length === 0) {
+        console.log('❌ No users found in Firebase');
+        return null; // Return null to indicate no data
+      }
+      
       // Get current month data
       const now = new Date();
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
       const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
       
-      // Get users registered this month
-      const thisMonthSnapshot = await usersRef
-        .where("createdAt", ">=", firebase.firestore.Timestamp.fromDate(startOfMonth))
-        .where("createdAt", "<=", firebase.firestore.Timestamp.fromDate(endOfMonth))
-        .get();
-      
-      // Get all users for total count
-      const allUsersSnapshot = await usersRef.get();
-      
-      // Get users registered in previous months (for "Current" calculation)
-      const previousMonthsSnapshot = await usersRef
-        .where("createdAt", "<", firebase.firestore.Timestamp.fromDate(startOfMonth))
-        .get();
-      
-      const thisMonthUsers = thisMonthSnapshot.docs.length;
-      const previousMonthsUsers = previousMonthsSnapshot.docs.length;
-      const totalUsers = allUsersSnapshot.docs.length;
-      
-      // Calculate retargeted users (users who registered this month but had previous activity)
-      // For simplicity, we'll assume 20% of new users are retargeted
-      const retargetedUsers = Math.floor(thisMonthUsers * 0.2);
-      const newUsers = thisMonthUsers - retargetedUsers;
-      
-      console.log('✅ User data loaded:', {
-        totalUsers,
-        thisMonthUsers,
-        previousMonthsUsers,
-        newUsers,
-        retargetedUsers
+      console.log('📅 Date range:', {
+        startOfMonth: startOfMonth.toISOString(),
+        endOfMonth: endOfMonth.toISOString()
       });
-
+      
+      // Filter users registered this month
+      const thisMonthUsers = allUsers.filter(user => {
+        if (!user.createdAt) return false;
+        
+        // Handle both timestamp and date formats
+        let userDate;
+        if (user.createdAt.seconds) {
+          userDate = new Date(user.createdAt.seconds * 1000);
+        } else if (user.createdAt.toDate) {
+          userDate = user.createdAt.toDate();
+        } else {
+          userDate = new Date(user.createdAt);
+        }
+        
+        return userDate >= startOfMonth && userDate <= endOfMonth;
+      });
+      
+      const thisMonthCount = thisMonthUsers.length;
+      const totalCount = allUsers.length;
+      const currentCount = totalCount - thisMonthCount; // All users minus this month's users
+      
+      console.log('�� User counts:', {
+        total: totalCount,
+        thisMonth: thisMonthCount,
+        current: currentCount
+      });
+      
       // Calculate percentages
-      const currentPercentage = totalUsers > 0 ? Math.round((previousMonthsUsers / totalUsers) * 100) : 0;
-      const newPercentage = totalUsers > 0 ? Math.round((newUsers / totalUsers) * 100) : 0;
-      const retargetedPercentage = totalUsers > 0 ? Math.round((retargetedUsers / totalUsers) * 100) : 0;
-
-      return {
+      const currentPercentage = totalCount > 0 ? Math.round((currentCount / totalCount) * 100) : 0;
+      const newPercentage = totalCount > 0 ? Math.round((thisMonthCount / totalCount) * 100) : 0;
+      
+      const result = {
         current: currentPercentage,
         new: newPercentage,
-        retargeted: retargetedPercentage,
         counts: {
-          current: previousMonthsUsers,
-          new: newUsers,
-          retargeted: retargetedUsers,
-          total: totalUsers
+          current: currentCount,
+          new: thisMonthCount,
+          total: totalCount
         }
       };
+      
+      console.log('✅ User data calculated:', result);
+      return result;
+      
     } catch (error) {
       console.error("Error fetching user data:", error);
-      // Return default data if error
-      return {
-        current: 65,
-        new: 25,
-        retargeted: 10,
-        counts: {
-          current: 65,
-          new: 25,
-          retargeted: 10,
-          total: 100
-        }
-      };
+      return null; // Return null to indicate error
     }
   }
 

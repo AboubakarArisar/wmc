@@ -426,10 +426,26 @@
 
             // Load New Users Chart
             // Load New Users Chart with REAL data from Firebase
+            // Load New Users Chart with REAL data from Firebase
+            // Load New Users Chart with REAL data from Firebase
             async function loadNewUsersChart() {
                 try {
                     console.log("🔄 Loading new users chart data from Firebase...");
+                    
+                    if (!window.FirebaseUsersChartService) {
+                        console.error("❌ FirebaseUsersChartService not available");
+                        showNoDataMessage();
+                        return;
+                    }
+                    
                     const userData = await window.FirebaseUsersChartService.getNewUsersData();
+                    
+                    if (!userData) {
+                        console.log("❌ No user data available");
+                        showNoDataMessage();
+                        return;
+                    }
+                    
                     console.log("✅ New users data loaded:", userData);
                     
                     const options = {
@@ -437,14 +453,16 @@
                             height: 300,
                             type: "donut",
                         },
-                        series: [userData.current, userData.new, userData.retargeted],
-                        labels: ["Current", "New", "Retargeted"],
-                        colors: ["#8b5cf6", "#06b6d4", "#f59e0b"],
+                        series: [userData.current, userData.new],
+                        labels: ["Current", "New"],
+                        colors: ["#8b5cf6", "#06b6d4"],
                         legend: {
                             position: "bottom",
                             horizontalAlign: "center",
                             formatter: function(seriesName, opts) {
-                                return seriesName + ": " + userData.counts[seriesName.toLowerCase()] + " users (" + opts.w.globals.series[opts.seriesIndex] + "%)";
+                                const count = userData.counts[seriesName.toLowerCase()];
+                                const percentage = opts.w.globals.series[opts.seriesIndex];
+                                return seriesName + ": " + count + " users (" + percentage + "%)";
                             }
                         },
                         plotOptions: {
@@ -474,7 +492,8 @@
                             y: {
                                 formatter: function(val, opts) {
                                     const seriesName = opts.w.globals.labels[opts.seriesIndex].toLowerCase();
-                                    return userData.counts[seriesName] + " users (" + val + "%)";
+                                    const count = userData.counts[seriesName];
+                                    return count + " users (" + val + "%)";
                                 }
                             }
                         }
@@ -482,7 +501,6 @@
                     
                     const chartElement = document.querySelector("#newUsersChart");
                     if (chartElement) {
-                        // Destroy existing chart if it exists
                         if (chartElement._apexChart) {
                             chartElement._apexChart.destroy();
                         }
@@ -492,45 +510,25 @@
                         chartElement._apexChart = chart;
                         
                         console.log("📊 New users chart updated with real Firebase data");
+                    } else {
+                        console.error("❌ Chart element not found");
                     }
                 } catch (error) {
                     console.error("❌ Error loading new users chart:", error);
-                    // Fallback to static data if error
-                    loadNewUsersChartStatic();
+                    showNoDataMessage();
+                }
+            }
+
+            // Show no data message
+            function showNoDataMessage() {
+                const chartElement = document.querySelector("#newUsersChart");
+                if (chartElement) {
+                    chartElement.innerHTML = "<div class='text-center p-4'><h6 class='text-muted'>No user data available</h6><p class='text-muted small'>Please check Firebase connection</p></div>";
                 }
             }
 
             // Fallback static chart function
-            function loadNewUsersChartStatic() {
-                const options = {
-                    chart: {
-                        height: 300,
-                        type: "donut",
-                    },
-                    series: [65, 25, 10],
-                    labels: ["Current", "New", "Retargeted"],
-                    colors: ["#8b5cf6", "#06b6d4", "#f59e0b"],
-                    legend: {
-                        position: "bottom",
-                        horizontalAlign: "center"
-                    },
-                    plotOptions: {
-                        pie: {
-                            donut: {
-                                size: "70%"
-                            }
-                        }
-                    },
-                    dataLabels: {
-                        enabled: true,
-                        formatter: function (val) {
-                            return val + "%";
-                        }
-                    }
-                };
-                const chart = new ApexCharts(document.querySelector("#newUsersChart"), options);
-                chart.render();
-            }
+            // Fallback static chart function with realistic data
 
             // Load Documents from Firebase (REAL DATA)
             async function loadDocuments() {
