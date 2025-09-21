@@ -219,7 +219,7 @@
                 // Profile picture handling
                 let profilePicture = '';
                 if (user.profilePicture && user.profilePicture.trim() !== '') {
-                    profilePicture = `<img src="${user.profilePicture}" alt="${name}" class="user-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">`;
+                    profilePicture = `<img src="${user.profilePicture}" alt="${name.charAt(0)}" class="user-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">`;
                 }
 
                 // Avatar placeholder (will show if no profile picture or if image fails to load)
