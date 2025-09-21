@@ -1,0 +1,3 @@
+[build]
+  publish = "dist"       # or whatever folder Gulp outputs to
+  functions = "netlify/functions"

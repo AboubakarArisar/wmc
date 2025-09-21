@@ -342,8 +342,8 @@
                 try {
                     console.log('�� Loading REAL Stripe data with LIVE keys...');
                     
-                    if (window.StripeService) {
-                        const metrics = await window.StripeService.getDashboardMetrics();
+                    if (window.dataService) {
+                        const metrics = await window.dataService.getStripeData();
                         console.log('✅ Real Stripe metrics loaded:', metrics);
                         
                         // Update dashboard cards with real data
@@ -360,7 +360,7 @@
                         
                         console.log('🎉 Dashboard updated with LIVE Stripe data!');
                     } else {
-                        console.error('❌ StripeService not available');
+                        console.error("❌ DataService not available");');
                         setText('.revenue-card', 'Service Error');
                         setText('.orders-card', 'Service Error');
                         setText('.cancelled-card', 'Service Error');
