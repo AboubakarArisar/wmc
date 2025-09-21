@@ -195,7 +195,7 @@
             tbody.innerHTML = users.map(user => {
                 // Safe data extraction with null checks
                 const email = user.email || 'N/A';
-                const name = email !== 'N/A' ? email.split('@')[0] : 'Unknown';
+                const name = user.name;
                 const birthDate = user.birthDate ? new Date(user.birthDate).toLocaleDateString() : 'N/A';
                 
                 // Safe emergency contact handling
