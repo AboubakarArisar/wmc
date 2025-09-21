@@ -195,9 +195,10 @@
             tbody.innerHTML = users.map(user => {
                 // Safe data extraction with null checks
                 const email = user.email || 'N/A';
-                const name = user.name;
+                // Build name from firstName and lastName
+                const name = [user.firstName, user.lastName].filter(Boolean).join(' ') || 'N/A';
                 const birthDate = user.birthDate ? new Date(user.birthDate).toLocaleDateString() : 'N/A';
-                
+
                 // Safe emergency contact handling
                 let emergencyContact = 'N/A';
                 if (user.emergencyContact && Array.isArray(user.emergencyContact) && user.emergencyContact.length > 0) {
@@ -210,20 +211,20 @@
                         emergencyContact = contact.phone;
                     }
                 }
-                
+
                 // Card status with safe handling
                 const cardStatus = user.cardOrderStatus || 'Not Ordered';
                 const statusClass = cardStatus === 'Not Ordered' ? 'bg-warning-subtle text-warning' : 'bg-success-subtle text-success';
-                
+
                 // Profile picture handling
                 let profilePicture = '';
                 if (user.profilePicture && user.profilePicture.trim() !== '') {
                     profilePicture = `<img src="${user.profilePicture}" alt="${name}" class="user-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">`;
                 }
-                
+
                 // Avatar placeholder (will show if no profile picture or if image fails to load)
-                const avatarPlaceholder = `<div class="avatar-placeholder bg-primary" style="display: ${user.profilePicture && user.profilePicture.trim() !== '' ? 'none' : 'flex'};">${name.toUpperCase()}</div>`;
-                
+                const avatarPlaceholder = `<div class="avatar-placeholder bg-primary" style="display: ${user.profilePicture && user.profilePicture.trim() !== '' ? 'none' : 'flex'};">${name !== 'N/A' ? name.toUpperCase() : ''}</div>`;
+
                 return `
                     <tr>
                         <td>
