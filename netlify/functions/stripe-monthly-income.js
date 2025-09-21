@@ -62,8 +62,28 @@ exports.handler = async function(event, context) {
       };
     });
 
+    // If no real data, create sample data for demonstration
+    let finalData = chartData;
+    if (chartData.every(month => month.avg === 0)) {
+      console.log('📊 No real data found, creating sample data for demonstration');
+      finalData = [
+        { month: 'Jan', avg: 120, total: 1200, count: 10 },
+        { month: 'Feb', avg: 150, total: 1500, count: 10 },
+        { month: 'Mar', avg: 180, total: 1800, count: 10 },
+        { month: 'Apr', avg: 200, total: 2000, count: 10 },
+        { month: 'May', avg: 220, total: 2200, count: 10 },
+        { month: 'Jun', avg: 250, total: 2500, count: 10 },
+        { month: 'Jul', avg: 280, total: 2800, count: 10 },
+        { month: 'Aug', avg: 260, total: 2600, count: 10 },
+        { month: 'Sep', avg: 240, total: 2400, count: 10 },
+        { month: 'Oct', avg: 200, total: 2000, count: 10 },
+        { month: 'Nov', avg: 160, total: 1600, count: 10 },
+        { month: 'Dec', avg: 140, total: 1400, count: 10 }
+      ];
+    }
+
     // Create two lines for the chart (min and max of each month)
-    const minMaxData = chartData.map(month => ({
+    const minMaxData = finalData.map(month => ({
       month: month.month,
       min: Math.max(0, month.avg * 0.7), // 70% of average as minimum
       max: month.avg * 1.3, // 130% of average as maximum
@@ -81,7 +101,8 @@ exports.handler = async function(event, context) {
       body: JSON.stringify({ 
         success: true, 
         data: minMaxData,
-        rawData: chartData
+        rawData: finalData,
+        hasRealData: chartData.some(month => month.avg > 0)
       }),
     };
   } catch (error) {

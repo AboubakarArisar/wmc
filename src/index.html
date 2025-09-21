@@ -593,6 +593,7 @@
             }
 
             // Update the monthly income chart with real data
+            // Update the monthly income chart with real data
             function updateMonthlyIncomeChart(data) {
                 const chartElement = document.querySelector("#monthlyIncomeChart");
                 if (chartElement && window.ApexCharts) {
@@ -648,13 +649,22 @@
                         },
                         legend: {
                             show: false
+                        },
+                        tooltip: {
+                            y: {
+                                formatter: function(val) {
+                                    return "$" + val.toFixed(2);
+                                }
+                            }
                         }
                     };
                     
+                    // Destroy existing chart if it exists
                     if (chartElement._apexChart) {
                         chartElement._apexChart.destroy();
                     }
                     
+                    // Create new chart
                     const chart = new ApexCharts(chartElement, options);
                     chart.render();
                     chartElement._apexChart = chart;
@@ -662,17 +672,28 @@
                     console.log("📊 Monthly income chart updated with real data");
                 } else {
                     console.log("⚠️ Chart element or ApexCharts not found");
+                    console.log("Chart element:", chartElement);
+                    console.log("ApexCharts:", window.ApexCharts);
                 }
             }
             // Load Latest Cards from Firebase (Registered Users)
+            // Load Latest Cards from Firebase (Registered Users)
             async function loadLatestCards() {
                 try {
-                    console.log("🔄 Loading popular products from Firebase...");
-                    const products = await window.FirebaseCardsService.getLatestCards();
-                    console.log("✅ User Names loaded:", products);
-                    displayLatestCards(products);
+                    console.log("🔄 Loading latest cards from Firebase...");
+                    console.log("FirebaseCardsService available:", !!window.FirebaseCardsService);
+                    
+                    if (!window.FirebaseCardsService) {
+                        console.error("❌ FirebaseCardsService not available");
+                        displayLatestCards([]);
+                        return;
+                    }
+                    
+                    const cards = await window.FirebaseCardsService.getLatestCards();
+                    console.log("✅ Cards loaded:", cards);
+                    displayLatestCards(cards);
                 } catch (error) {
-                    console.error("❌ Error loading products:", error);
+                    console.error("❌ Error loading cards:", error);
                     displayLatestCards([]);
                 }
             }
