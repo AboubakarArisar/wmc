@@ -160,9 +160,9 @@
                                         <i class="fas fa-calendar me-1"></i> <span id="newUsersRangeLabel">This Month</span>
                                     </button>
                                     <ul class="dropdown-menu" id="newUsersRangeMenu">
-                                        <li><a class="dropdown-item" data-range="week" href="#">This Week</a></li>
-                                        <li><a class="dropdown-item" data-range="month" href="#">This Month</a></li>
-                                        <li><a class="dropdown-item" data-range="year" href="#">This Year</a></li>
+                                        <li><button type="button" class="dropdown-item" data-range="week">This Week</button></li>
+                                        <li><button type="button" class="dropdown-item" data-range="month">This Month</button></li>
+                                        <li><button type="button" class="dropdown-item" data-range="year">This Year</button></li>
                                     </ul>
                                 </div>
                             </div>
@@ -184,9 +184,9 @@
                                         <i class="fas fa-calendar me-1"></i> <span id="countryRangeLabel">This Month</span>
                                     </button>
                                     <ul class="dropdown-menu" id="countryRangeMenu">
-                                        <li><a class="dropdown-item" data-range="week" href="#">This Week</a></li>
-                                        <li><a class="dropdown-item" data-range="month" href="#">This Month</a></li>
-                                        <li><a class="dropdown-item" data-range="year" href="#">This Year</a></li>
+                                        <li><button type="button" class="dropdown-item" data-range="week">This Week</button></li>
+                                        <li><button type="button" class="dropdown-item" data-range="month">This Month</button></li>
+                                        <li><button type="button" class="dropdown-item" data-range="year">This Year</button></li>
                                     </ul>
                                 </div>
                             </div>
@@ -220,12 +220,12 @@
                                 <h4 class="card-title">Latest Cards</h4>
                                 <div class="dropdown">
                                     <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" id="cardsRangeBtn">
-                                        <i class="fas fa-calendar me-1"></i> This Year
+                                        <i class="fas fa-calendar me-1"></i> <span id="cardsRangeLabel">This Year</span>
                                     </button>
                                     <ul class="dropdown-menu" id="cardsRangeMenu">
-                                        <li><a class="dropdown-item" data-range="week" href="#">This Week</a></li>
-                                        <li><a class="dropdown-item" data-range="month" href="#">This Month</a></li>
-                                        <li><a class="dropdown-item" data-range="year" href="#">This Year</a></li>
+                                        <li><button type="button" class="dropdown-item" data-range="week">This Week</button></li>
+                                        <li><button type="button" class="dropdown-item" data-range="month">This Month</button></li>
+                                        <li><button type="button" class="dropdown-item" data-range="year">This Year</button></li>
                                     </ul>
                                 </div>
                             </div>
@@ -641,11 +641,11 @@
             const menu = document.getElementById("newUsersRangeMenu");
             const label = document.getElementById("newUsersRangeLabel");
             if (!menu || !label) return;
-            menu.querySelectorAll("a[data-range]").forEach(a => {
-                a.addEventListener("click", (e) => {
+            menu.querySelectorAll("[data-range]").forEach(el => {
+                el.addEventListener("click", (e) => {
                     e.preventDefault();
-                    const range = a.getAttribute("data-range");
-                    label.textContent = a.textContent.trim();
+                    const range = el.getAttribute("data-range");
+                    label.textContent = el.textContent.trim();
                     loadNewUsersChart(range);
                 });
             });
@@ -660,7 +660,7 @@
         }
 
         // Load Latest Cards from Firebase (Registered Users)
-        async function loadLatestCards() {
+        async function loadLatestCards(range = "year") {
             try {
                 const allUsers = await window.FirebaseDataService.getCustomers();
                 console.log("✅ Users loaded:", allUsers.length, "users");
@@ -671,7 +671,32 @@
                     return;
                 }
                 
-                const registeredUsers = allUsers.filter(user => user.cardOrderStatus === "Registered");
+                let registeredUsers = allUsers.filter(user => user.cardOrderStatus === "Registered");
+                
+                // Filter by date range if specified
+                if (range !== "year") {
+                    const now = new Date();
+                    let startDate, endDate;
+
+                    if (range === "week") {
+                        const day = now.getDay();
+                        const diffToMonday = (day === 0 ? -6 : 1 - day);
+                        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diffToMonday);
+                        endDate = new Date(startDate);
+                        endDate.setDate(startDate.getDate() + 6);
+                    } else if (range === "month") {
+                        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                        endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                    }
+                    startDate.setHours(0, 0, 0, 0);
+                    endDate.setHours(23, 59, 59, 999);
+
+                    registeredUsers = registeredUsers.filter(user => {
+                        if (!user.cardOrderDate) return false;
+                        const userDate = new Date(user.cardOrderDate);
+                        return userDate >= startDate && userDate <= endDate;
+                    });
+                }
                 console.log("📊 Found registered users:", registeredUsers.length);
                 
                 // Sort by registration date desc if present
@@ -745,10 +770,10 @@
         }
 
         // Load Country Sales from Stripe
-        async function loadCountrySales() {
+        async function loadCountrySales(range = "month") {
             try {
                 console.log("🔄 Loading country sales data from Stripe...");
-                const response = await fetch("/.netlify/functions/stripe-country-sales");
+                const response = await fetch(`/.netlify/functions/stripe-country-sales?range=${range}`);
                 const result = await response.json();
                 
                 if (result.success) {
@@ -821,6 +846,35 @@
         }
 
         // Main initialization function
+        // Wire country range dropdown
+        function attachCountryRangeHandlers() {
+            const menu = document.getElementById("countryRangeMenu");
+            const label = document.getElementById("countryRangeLabel");
+            if (!menu || !label) return;
+            menu.querySelectorAll("[data-range]").forEach(el => {
+                el.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    const range = el.getAttribute("data-range");
+                    label.textContent = el.textContent.trim();
+                    loadCountrySales(range);
+                });
+            });
+        }
+
+        // Wire cards range dropdown
+        function attachCardsRangeHandlers() {
+            const menu = document.getElementById("cardsRangeMenu");
+            const label = document.getElementById("cardsRangeLabel");
+            if (!menu || !label) return;
+            menu.querySelectorAll("[data-range]").forEach(el => {
+                el.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    const range = el.getAttribute("data-range");
+                    label.textContent = el.textContent.trim();
+                    loadLatestCards(range);
+                });
+            });
+        }
         document.addEventListener("DOMContentLoaded", async function() {
             // Wait for Firebase to be ready
             await new Promise(resolve => setTimeout(resolve, 2000));
@@ -832,6 +886,8 @@
             createMiniCharts();
             loadMonthlyIncomeChart();
             attachNewUsersRangeHandlers();
+            attachCountryRangeHandlers();
+            attachCardsRangeHandlers();
             await loadNewUsersChart("month");
         });
     </script>
