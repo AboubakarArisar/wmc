@@ -235,11 +235,11 @@
                                         <thead class="table-light">
                                             <tr>
                                                 <th>Name</th>
-                                                <th>Card Type</th>
+                                          
                                                 <th>Registration Date</th>
                                                 <th>Status</th>
                                                 <th>Email</th>
-                                                <th>Emergency Contact</th>
+                                              
                                             </tr>
                                         </thead>
                                         <tbody id="popularProductsBody">
@@ -697,17 +697,10 @@
                     const cards = registeredUsers.slice(0, 5).map(user => ({
                         id: user.id,
                         name: (user.firstName || "") + " " + (user.lastName || ""),
-                        cardType: user.cardType || "Premium Card",
-                        registrationDate: user.createdAt
-                            ? (user.createdAt.seconds
-                                ? new Date(user.createdAt.seconds * 1000).toLocaleDateString()
-                                : (user.createdAt.toDate
-                                    ? user.createdAt.toDate().toLocaleDateString()
-                                    : new Date(user.createdAt).toLocaleDateString()))
-                            : "N/A",
+                        registrationDate: user.cardOrderDate,
                         status: user.cardOrderStatus || "Registered",
                         email: user.email || "N/A",
-                        emergencyContact: user.emergencyContact || "N/A"
+                     
                     }));
                     console.log("✅ Cards generated:", cards);
                     displayLatestCards(cards);
@@ -730,29 +723,16 @@
                     }
 
                     cards.forEach(card => {
-                        // Format emergency contact
-                        let emergencyContact = "N/A";
-                        if (Array.isArray(card.emergencyContact) && card.emergencyContact.length > 0) {
-                            emergencyContact = card.emergencyContact.map(contact => {
-                                if (typeof contact === "object" && contact !== null) {
-                                    if (contact.name && contact.phone) return `${contact.name} (${contact.phone})`;
-                                    if (contact.name) return contact.name;
-                                    if (contact.phone) return contact.phone;
-                                }
-                                return typeof contact === "string" ? contact : "";
-                            }).filter(Boolean).join(", ");
-                        } else if (typeof card.emergencyContact === "string") {
-                            emergencyContact = card.emergencyContact;
-                        }
+                     
 
                         const row = `
                             <tr>
                                 <td>${card.name || "N/A"}</td>
-                                <td>${card.cardType || "N/A"}</td>
+                          
                                 <td>${card.registrationDate || "N/A"}</td>
                                 <td>${card.status || "N/A"}</td>
                                 <td>${card.email || "N/A"}</td>
-                                <td>${emergencyContact}</td>
+                                
                             </tr>
                         `;
                         popularProductsBody.insertAdjacentHTML("beforeend", row);
