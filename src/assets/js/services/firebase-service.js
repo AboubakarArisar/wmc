@@ -58,7 +58,7 @@ class FirebaseDataService {
       
       const snapshot = await this.db.collection('TrackOrder')
         .orderBy('date', 'desc')
-        .limit(50)
+        
         .get();
       
       return snapshot.docs.map(doc => ({
@@ -79,7 +79,7 @@ class FirebaseDataService {
       }
       
       const snapshot = await this.db.collection('user')
-        .limit(50)
+        
         .get();
       
       return snapshot.docs.map(doc => ({
@@ -99,7 +99,7 @@ class FirebaseDataService {
       }
       
       const snapshot = await this.db.collection('medicine')
-        .limit(50)
+        
         .get();
       
       return snapshot.docs.map(doc => ({
