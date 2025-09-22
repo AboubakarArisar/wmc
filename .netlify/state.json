@@ -1,7 +1,7 @@
 {
 	"geolocation": {
 		"data": {
-			"city": "Daharki",
+			"city": "Pano Aqil",
 			"country": {
 				"code": "PK",
 				"name": "Pakistan"
@@ -11,10 +11,10 @@
 				"name": "Sindh"
 			},
 			"timezone": "Asia/Karachi",
-			"latitude": 28.0476,
-			"longitude": 69.6974,
-			"postalCode": "65010"
+			"latitude": 27.855,
+			"longitude": 69.1129,
+			"postalCode": "65120"
 		},
-		"timestamp": 1758452707336
+		"timestamp": 1758570747586
 	}
 }
