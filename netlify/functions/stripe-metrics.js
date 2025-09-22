@@ -5,9 +5,9 @@ exports.handler = async (event, context) => {
     // Fetch all Stripe data in parallel
     const [balance, charges, paymentIntents, customers] = await Promise.all([
       stripe.balance.retrieve(),
-      stripe.charges.list({ limit: 50 }),
-      stripe.paymentIntents.list({ limit: 50 }),
-      stripe.customers.list({ limit: 50 })
+      stripe.charges.list({ limit: 1000 }),
+      stripe.paymentIntents.list({ limit: 1000 }),
+      stripe.customers.list({ limit: 1000 })
     ]);
 
     // Calculate metrics

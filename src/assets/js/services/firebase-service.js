@@ -37,7 +37,7 @@ class FirebaseDataService {
       
       const snapshot = await this.db.collection('documents')
         .orderBy('id', 'desc')
-        .limit(10)
+        
         .get();
       
       return snapshot.docs.map(doc => ({
@@ -120,7 +120,7 @@ class FirebaseDataService {
       
       const snapshot = await this.db.collection('chat')
         .orderBy('timestamp', 'desc')
-        .limit(20)
+        
         .get();
       
       return snapshot.docs.map(doc => ({
@@ -142,7 +142,7 @@ class FirebaseDataService {
       
       const snapshot = await this.db.collection('events')
         .orderBy('date', 'asc')
-        .limit(30)
+        
         .get();
       
       return snapshot.docs.map(doc => ({

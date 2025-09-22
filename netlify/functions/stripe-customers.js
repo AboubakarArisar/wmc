@@ -2,7 +2,7 @@ exports.handler = async (event, context) => {
   try {
     const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
     
-    const customers = await stripe.customers.list({ limit: 10 });
+    const customers = await stripe.customers.list({ limit: 1000 });
     
     return {
       statusCode: 200,
