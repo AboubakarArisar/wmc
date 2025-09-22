@@ -134,7 +134,7 @@
                     <div class="col-lg-8">
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
-                                <h4 class="card-title">Monthly Avg. Income</h4>
+                                <h4 class="card-title">Monthly Income</h4>
                                 <div class="dropdown">
                                     <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" id="incomeRangeBtn">
                                         <i class="fas fa-calendar me-1"></i> <span id="incomeRangeLabel">This Month</span>
@@ -405,7 +405,7 @@
                 if (result.success && Array.isArray(result.data)) {
                     const data = result.data.map(item => ({
                         month: item.month,
-                        income: Number(item.avg) || 0
+                        income: Number(item.total) || 0
                     }));
                     updateMonthlyIncomeChart(data);
                 } else {
@@ -431,7 +431,7 @@
                     },
                     series: [
                         {
-                            name: "Monthly Income",
+                            name: "Actual Income",
                             data: incomes.map(v => Number(v).toFixed(1))
                         }
                     ],
@@ -485,7 +485,7 @@
                 chart.render();
                 chartElement._apexChart = chart;
 
-                console.log("📊 Monthly income chart updated with real data");
+                console.log("📊 Actual income chart updated with real data");
             } else {
                 console.log("⚠️ Chart element or ApexCharts not found");
             }
