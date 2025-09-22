@@ -2,10 +2,44 @@ exports.handler = async (event, context) => {
   try {
     const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
     
+    // Get range parameter from query string
+    const params = event.queryStringParameters || {};
+    const range = (params.range || 'month').toLowerCase();
+    
+    const now = new Date();
+    
+    function atMidnight(d) {
+      const copy = new Date(d);
+      copy.setHours(0, 0, 0, 0);
+      return copy;
+    }
+    
+    let startDate, endDate;
+    if (range === 'week') {
+      // Current week: Monday 00:00 to Sunday 23:59
+      const day = now.getDay();
+      const diffToMonday = (day === 0 ? -6 : 1 - day);
+      startDate = atMidnight(new Date(now.getFullYear(), now.getMonth(), now.getDate() + diffToMonday));
+      endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 6);
+      endDate.setHours(23,59,59,999);
+    } else if (range === 'month') {
+      startDate = atMidnight(new Date(now.getFullYear(), now.getMonth(), 1));
+      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      endDate.setHours(23,59,59,999);
+    } else { // year
+      startDate = atMidnight(new Date(now.getFullYear(), 0, 1));
+      endDate = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
+    }
+    
     // Get charges with billing details to analyze by country
     const charges = await stripe.charges.list({ 
-      limit: 500,
-      expand: ['data.billing_details']
+      limit: 1000,
+      expand: ['data.billing_details'],
+      created: {
+        gte: Math.floor(startDate.getTime() / 1000),
+        lte: Math.floor(endDate.getTime() / 1000)
+      }
     });
 
     // Country mapping for common country codes
@@ -73,7 +107,12 @@ exports.handler = async (event, context) => {
       },
       body: JSON.stringify({
         success: true,
-        data: countryArray.slice(0, 6) // Top 6 countries
+        data: countryArray.slice(0, 6), // Top 6 countries
+        range: range,
+        period: {
+          start: startDate.toISOString(),
+          end: endDate.toISOString()
+        }
       })
     };
   } catch (error) {
