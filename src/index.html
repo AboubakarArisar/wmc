@@ -156,13 +156,13 @@
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h4 class="card-title">New Users</h4>
                                 <div class="dropdown">
-                                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                        <i class="fas fa-calendar me-1"></i> This Month
+                                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" id="newUsersRangeBtn">
+                                        <i class="fas fa-calendar me-1"></i> <span id="newUsersRangeLabel">This Month</span>
                                     </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="#">This Week</a></li>
-                                        <li><a class="dropdown-item" href="#">This Month</a></li>
-                                        <li><a class="dropdown-item" href="#">This Year</a></li>
+                                    <ul class="dropdown-menu" id="newUsersRangeMenu">
+                                        <li><a class="dropdown-item" data-range="week" href="#">This Week</a></li>
+                                        <li><a class="dropdown-item" data-range="month" href="#">This Month</a></li>
+                                        <li><a class="dropdown-item" data-range="year" href="#">This Year</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -180,13 +180,13 @@
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h4 class="card-title">Top Registration by Country</h4>
                                 <div class="dropdown">
-                                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                        <i class="fas fa-calendar me-1"></i> This Month
+                                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" id="newUsersRangeBtn">
+                                        <i class="fas fa-calendar me-1"></i> <span id="newUsersRangeLabel">This Month</span>
                                     </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="#">This Week</a></li>
-                                        <li><a class="dropdown-item" href="#">This Month</a></li>
-                                        <li><a class="dropdown-item" href="#">This Year</a></li>
+                                    <ul class="dropdown-menu" id="newUsersRangeMenu">
+                                        <li><a class="dropdown-item" data-range="week" href="#">This Week</a></li>
+                                        <li><a class="dropdown-item" data-range="month" href="#">This Month</a></li>
+                                        <li><a class="dropdown-item" data-range="year" href="#">This Year</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -219,13 +219,13 @@
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h4 class="card-title">Latest Cards</h4>
                                 <div class="dropdown">
-                                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" id="newUsersRangeBtn">
                                         <i class="fas fa-calendar me-1"></i> This Year
                                     </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="#">This Week</a></li>
-                                        <li><a class="dropdown-item" href="#">This Month</a></li>
-                                        <li><a class="dropdown-item" href="#">This Year</a></li>
+                                    <ul class="dropdown-menu" id="newUsersRangeMenu">
+                                        <li><a class="dropdown-item" data-range="week" href="#">This Week</a></li>
+                                        <li><a class="dropdown-item" data-range="month" href="#">This Month</a></li>
+                                        <li><a class="dropdown-item" data-range="year" href="#">This Year</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -399,15 +399,6 @@
             // Load New Users Chart with REAL data from Firebase
             // Load New Users Chart from existing Firebase users
             // Load New Users Chart from Firebase users (same as users.html)
-            async function loadNewUsersChart() {
-                try {
-                    console.log("🔄 Loading new users chart from Firebase users...");
-                    
-                    if (!window.FirebaseDataService) {
-                        console.error("❌ FirebaseDataService not available");
-                        showNoDataMessage();
-                        return;
-                    }
                     
                     const allUsers = await window.FirebaseDataService.getCustomers();
                     console.log("✅ Users loaded:", allUsers.length, "users");
@@ -689,15 +680,6 @@
             // Load Latest Cards from Firebase (Registered Users)
             // Load Latest Cards from existing Firebase users
             // Load Latest Cards from Firebase users (same as users.html)
-            async function loadLatestCards() {
-                try {
-                    console.log("🔄 Loading latest cards from Firebase users...");
-                    
-                    if (!window.FirebaseDataService) {
-                        console.error("❌ FirebaseDataService not available");
-                        displayLatestCards([]);
-                        return;
-                    }
                     
                     const allUsers = await window.FirebaseDataService.getCustomers();
                     console.log("✅ Users loaded:", allUsers.length, "users");
@@ -732,7 +714,7 @@
             // Pagination state
             let allCardsData = [];
             let cardsPage = 1;
-            const cardsPageSize = 10;
+            const cardsPageSize = 5;
 
             function initCardsPagination(cards) {
                 allCardsData = cards || [];
@@ -864,7 +846,8 @@
             await loadLatestCards();
             createMiniCharts();
             loadMonthlyIncomeChart();
-            await loadNewUsersChart();
+            attachNewUsersRangeHandlers();
+            await loadNewUsersChart("month");
             await loadDocuments();
         });
     </script>
@@ -872,45 +855,5 @@
 </html>
 
 
-/* Fix card alignment and height consistency */
-.row .card {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.row .card .card-body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.row .card .table-responsive {
-    flex: 1;
-}
-
-/* Ensure equal height cards */
-.col-lg-6 {
-    display: flex;
-}
-
-.col-lg-6 .card {
-    width: 100%;
-}
-
-/* Fix table alignment */
-.table th, .table td {
-    vertical-align: middle;
-}
-
-/* Ensure proper spacing */
-.card-body {
-    padding: 1.5rem;
-}
-
-/* Fix pagination alignment */
-#cardsPagination, #usersPagination {
-    margin-top: auto;
-    padding-top: 1rem;
-    border-top: 1px solid #e9ecef;
-}
+</body>
+</html>
