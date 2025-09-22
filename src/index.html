@@ -180,10 +180,10 @@
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h4 class="card-title">Top Registration by Country</h4>
                                 <div class="dropdown">
-                                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" id="newUsersRangeBtn">
-                                        <i class="fas fa-calendar me-1"></i> <span id="newUsersRangeLabel">This Month</span>
+                                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" id="countryRangeBtn">
+                                        <i class="fas fa-calendar me-1"></i> <span id="countryRangeLabel">This Month</span>
                                     </button>
-                                    <ul class="dropdown-menu" id="newUsersRangeMenu">
+                                    <ul class="dropdown-menu" id="countryRangeMenu">
                                         <li><a class="dropdown-item" data-range="week" href="#">This Week</a></li>
                                         <li><a class="dropdown-item" data-range="month" href="#">This Month</a></li>
                                         <li><a class="dropdown-item" data-range="year" href="#">This Year</a></li>
@@ -219,10 +219,10 @@
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h4 class="card-title">Latest Cards</h4>
                                 <div class="dropdown">
-                                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" id="newUsersRangeBtn">
+                                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" id="cardsRangeBtn">
                                         <i class="fas fa-calendar me-1"></i> This Year
                                     </button>
-                                    <ul class="dropdown-menu" id="newUsersRangeMenu">
+                                    <ul class="dropdown-menu" id="cardsRangeMenu">
                                         <li><a class="dropdown-item" data-range="week" href="#">This Week</a></li>
                                         <li><a class="dropdown-item" data-range="month" href="#">This Month</a></li>
                                         <li><a class="dropdown-item" data-range="year" href="#">This Year</a></li>
@@ -261,9 +261,10 @@
                             </div>
                         </div>
                     </div>
-</div>
-                                    <!-- Documents Section -->
-       
+                </div>
+            </div>
+        </div>
+    </div>
 
     @@include('./partials/endbar.html')
     @@include('./partials/vendorjs.html')
@@ -298,549 +299,533 @@
 
     <!-- Dashboard Script -->
     <script>
-        document.addEventListener("DOMContentLoaded", async function() {
-            // Wait for Firebase to be ready
-            await new Promise(resolve => setTimeout(resolve, 2000));
+        // Global variables
+        let allCardsData = [];
+        let cardsPage = 1;
+        const cardsPageSize = 5;
 
-            function setText(sel, val) {
-                var el = document.querySelector(sel);
-                if (el) { el.textContent = val; }
+        // Utility function
+        function setText(selector, value) {
+            const element = document.querySelector(selector);
+            if (element) { 
+                element.textContent = value; 
             }
+        }
 
-            // Load REAL Stripe Data using Netlify Functions
-            async function loadRealStripeData() {
-                try {
-                    console.log('🔄 Loading REAL Stripe data from Netlify functions...');
+        // Load REAL Stripe Data using Netlify Functions
+        async function loadRealStripeData() {
+            try {
+                console.log('🔄 Loading REAL Stripe data from Netlify functions...');
+                
+                const response = await fetch('/.netlify/functions/stripe-metrics');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const metrics = result.data;
+                    console.log('✅ Real Stripe metrics loaded:', metrics);
                     
-                    const response = await fetch('/.netlify/functions/stripe-metrics');
-                    const result = await response.json();
+                    // Update dashboard cards with real data
+                    setText('.revenue-card', metrics.totalRevenue.toLocaleString() + "kr");
+                    setText('.orders-card', metrics.newOrders.toLocaleString());
+                    setText('.cancelled-card', metrics.cancellations || 0);
+                    setText('.avg-order-card', metrics.averageOrderValue.toLocaleString() + "kr");
                     
-                    if (result.success) {
-                        const metrics = result.data;
-                        console.log('✅ Real Stripe metrics loaded:', metrics);
-                        
-                        // Update dashboard cards with real data
-                        setText('.revenue-card', metrics.totalRevenue.toLocaleString() + "kr");
-                        setText('.orders-card', metrics.newOrders.toLocaleString());
-                        setText('.cancelled-card', metrics.cancellations || 0);
-                        setText('.avg-order-card', metrics.averageOrderValue.toLocaleString() + "kr");
-                        
-                        console.log('🎉 Dashboard updated with LIVE Stripe data!');
-                    } else {
-                        console.error('❌ Stripe API error:', result.error);
-                        setText('.revenue-card', 'API Error');
-                        setText('.orders-card', 'API Error');
-                        setText('.cancelled-card', 'API Error');
-                        setText('.avg-order-card', 'API Error');
-                    }
-                    
-                } catch (error) {
-                    console.error('❌ Error loading Stripe data:', error);
-                    setText('.revenue-card', 'Service Error');
-                    setText('.orders-card', 'Service Error');
-                    setText('.cancelled-card', 'Service Error');
-                    setText('.avg-order-card', 'Service Error');
+                    console.log('🎉 Dashboard updated with LIVE Stripe data!');
+                } else {
+                    console.error('❌ Stripe API error:', result.error);
+                    setText('.revenue-card', 'API Error');
+                    setText('.orders-card', 'API Error');
+                    setText('.cancelled-card', 'API Error');
+                    setText('.avg-order-card', 'API Error');
                 }
+                
+            } catch (error) {
+                console.error('❌ Error loading Stripe data:', error);
+                setText('.revenue-card', 'Service Error');
+                setText('.orders-card', 'Service Error');
+                setText('.cancelled-card', 'Service Error');
+                setText('.avg-order-card', 'Service Error');
             }
+        }
 
-            // Create mini charts for KPI cards
-            function createMiniCharts() {
-                // Revenue Chart - Line chart
-                const revenueOptions = {
-                    chart: { type: 'line', height: 60, sparkline: { enabled: true } },
-                    stroke: { curve: 'smooth', width: 2 },
-                    colors: ['#4d7cff'],
-                    series: [{ data: [10, 20, 35, 45, 55, 70, 85, 95] }],
-                    tooltip: { enabled: false }
-                };
-                new ApexCharts(document.querySelector("#revenueChart"), revenueOptions).render();
+        // Create mini charts for KPI cards
+        function createMiniCharts() {
+            // Revenue Chart - Line chart
+            const revenueOptions = {
+                chart: { type: 'line', height: 60, sparkline: { enabled: true } },
+                stroke: { curve: 'smooth', width: 2 },
+                colors: ['#4d7cff'],
+                series: [{ data: [10, 20, 35, 45, 55, 70, 85, 95] }],
+                tooltip: { enabled: false }
+            };
+            new ApexCharts(document.querySelector("#revenueChart"), revenueOptions).render();
 
-                // Orders Chart - Bar chart
-                const ordersOptions = {
-                    chart: { type: 'bar', height: 60, sparkline: { enabled: true } },
-                    colors: ['#4d7cff', '#ff6b6b'],
-                    series: [{ data: [20, 35, 25, 45, 30, 55, 40, 60] }],
-                    tooltip: { enabled: false }
-                };
-                new ApexCharts(document.querySelector("#ordersChart"), ordersOptions).render();
+            // Orders Chart - Bar chart
+            const ordersOptions = {
+                chart: { type: 'bar', height: 60, sparkline: { enabled: true } },
+                colors: ['#4d7cff', '#ff6b6b'],
+                series: [{ data: [20, 35, 25, 45, 30, 55, 40, 60] }],
+                tooltip: { enabled: false }
+            };
+            new ApexCharts(document.querySelector("#ordersChart"), ordersOptions).render();
 
-                // Cancelled Chart - Donut chart
-                const cancelledOptions = {
-                    chart: { type: 'donut', height: 60, sparkline: { enabled: true } },
-                    colors: ['#4d7cff', '#ffc107', '#ff6b6b', '#28a745'],
-                    series: [30, 20, 25, 25],
-                    tooltip: { enabled: false },
-                    legend: { show: false }
-                };
-                new ApexCharts(document.querySelector("#cancelledChart"), cancelledOptions).render();
+            // Cancelled Chart - Donut chart
+            const cancelledOptions = {
+                chart: { type: 'donut', height: 60, sparkline: { enabled: true } },
+                colors: ['#4d7cff', '#ffc107', '#ff6b6b', '#28a745'],
+                series: [30, 20, 25, 25],
+                tooltip: { enabled: false },
+                legend: { show: false }
+            };
+            new ApexCharts(document.querySelector("#cancelledChart"), cancelledOptions).render();
 
-                // Avg Order Chart - Network chart
-                const avgOrderOptions = {
-                    chart: { type: 'line', height: 60, sparkline: { enabled: true } },
-                    stroke: { curve: 'stepline', width: 2 },
-                    colors: ['#4d7cff'],
-                    series: [{ data: [15, 25, 20, 35, 30, 45, 40, 50] }],
-                    tooltip: { enabled: false }
-                };
-                new ApexCharts(document.querySelector("#avgOrderChart"), avgOrderOptions).render();
+            // Avg Order Chart - Network chart
+            const avgOrderOptions = {
+                chart: { type: 'line', height: 60, sparkline: { enabled: true } },
+                stroke: { curve: 'stepline', width: 2 },
+                colors: ['#4d7cff'],
+                series: [{ data: [15, 25, 20, 35, 30, 45, 40, 50] }],
+                tooltip: { enabled: false }
+            };
+            new ApexCharts(document.querySelector("#avgOrderChart"), avgOrderOptions).render();
+        }
+
+        // Load Monthly Income Chart with REAL data from Stripe
+        function loadMonthlyIncomeChart() {
+            attachIncomeRangeHandlers();
+            loadMonthlyIncome('month');
+        }
+
+        // Load Monthly Income data from Stripe
+        async function loadMonthlyIncome(range = 'month') {
+            try {
+                const response = await fetch(`/.netlify/functions/stripe-monthly-income?range=${range}`);
+                const result = await response.json();
+
+                if (result.success && Array.isArray(result.data)) {
+                    const data = result.data.map(item => ({
+                        month: item.month,
+                        income: Number(item.avg) || 0
+                    }));
+                    updateMonthlyIncomeChart(data);
+                } else {
+                    console.error("❌ No monthly income data available");
+                }
+            } catch (error) {
+                console.error("❌ Error loading monthly income:", error);
             }
+        }
 
-            // Load Monthly Income Chart with REAL data
-            // Load Monthly Income Chart with REAL data from Stripe
-            function loadMonthlyIncomeChart() {
-                // default range: month
-                attachIncomeRangeHandlers();
-                loadMonthlyIncome('month');
-            }
+        // Update Monthly Income Chart
+        function updateMonthlyIncomeChart(data) {
+            const chartElement = document.querySelector("#monthlyIncomeChart");
+            if (chartElement && window.ApexCharts) {
+                const months = data.map(item => item.month);
+                const incomes = data.map(item => item.income);
 
-            // Load New Users Chart
-            // Load New Users Chart with REAL data from Firebase
-            // Load New Users Chart with REAL data from Firebase
-            // Load New Users Chart with REAL data from Firebase
-            // Load New Users Chart from existing Firebase users
-            // Load New Users Chart from Firebase users (same as users.html)
-                    
-                    const allUsers = await window.FirebaseDataService.getCustomers();
-                    console.log("✅ Users loaded:", allUsers.length, "users");
-                    
-                    if (!allUsers || allUsers.length === 0) {
-                        console.log("❌ No users available");
-                        showNoDataMessage();
-                        return;
-                    }
-                    
-                    const now = new Date();
-                    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-                    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-                    
-                    const thisMonthUsers = allUsers.filter(user => {
-                        if (!user.createdAt) return false;
-                        let userDate;
-                        if (user.createdAt.seconds) {
-                            userDate = new Date(user.createdAt.seconds * 1000);
-                        } else if (user.createdAt.toDate) {
-                            userDate = user.createdAt.toDate();
-                        } else {
-                            userDate = new Date(user.createdAt);
+                const options = {
+                    chart: {
+                        type: "area",
+                        height: 350,
+                        toolbar: { show: false }
+                    },
+                    series: [
+                        {
+                            name: "Monthly Income",
+                            data: incomes.map(v => Number(v).toFixed(1))
                         }
-                        return userDate >= startOfMonth && userDate <= endOfMonth;
-                    });
-                    
-                    const currentUsers = allUsers.length - thisMonthUsers.length;
-                    const newUsers = thisMonthUsers.length;
-                    const totalUsers = allUsers.length;
-                    
-                    const userData = {
-                        current: totalUsers > 0 ? Math.round((currentUsers / totalUsers) * 100) : 0,
-                        new: totalUsers > 0 ? Math.round((newUsers / totalUsers) * 100) : 0,
-                        counts: {
-                            current: currentUsers,
-                            new: newUsers,
-                            total: totalUsers
-                        }
-                    };
-                    
-                    console.log("✅ New users data calculated:", userData);
-                    
-                    const options = {
-                        chart: {
-                            height: 300,
-                            type: "donut",
-                        },
-                        series: [userData.current, userData.new],
-                        labels: ["Current", "New"],
-                        colors: ["#8b5cf6", "#06b6d4"],
-                        legend: {
-                            position: "bottom",
-                            horizontalAlign: "center",
-                            formatter: function(seriesName, opts) {
-                                const count = userData.counts[seriesName.toLowerCase()];
-                                const percentage = opts.w.globals.series[opts.seriesIndex];
-                                return seriesName + ": " + count + " users (" + percentage + "%)";
+                    ],
+                    xaxis: {
+                        categories: months,
+                        axisBorder: { show: false },
+                        axisTicks: { show: false }
+                    },
+                    yaxis: {
+                        labels: {
+                            formatter: function (val) {
+                                return Number(val).toFixed(1) + "kr";
                             }
-                        },
-                        plotOptions: {
-                            pie: {
-                                donut: {
-                                    size: "70%",
-                                    labels: {
+                        }
+                    },
+                    colors: ["#3b82f6"],
+                    fill: {
+                        type: "solid",
+                        opacity: 0.9
+                    },
+                    stroke: {
+                        curve: "straight",
+                        width: 2
+                    },
+                    grid: {
+                        borderColor: "#f1f5f9",
+                        strokeDashArray: 5
+                    },
+                    legend: {
+                        show: false
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        y: {
+                            formatter: function(val) {
+                                return Number(val).toFixed(1) + "kr";
+                            }
+                        }
+                    }
+                };
+
+                // Destroy existing chart if it exists
+                if (chartElement._apexChart) {
+                    chartElement._apexChart.destroy();
+                }
+
+                // Create new chart
+                const chart = new ApexCharts(chartElement, options);
+                chart.render();
+                chartElement._apexChart = chart;
+
+                console.log("📊 Monthly income chart updated with real data");
+            } else {
+                console.log("⚠️ Chart element or ApexCharts not found");
+            }
+        }
+
+        // Wire range dropdown to reload chart
+        function attachIncomeRangeHandlers() {
+            const menu = document.getElementById('incomeRangeMenu');
+            const label = document.getElementById('incomeRangeLabel');
+            if (!menu || !label) return;
+            menu.querySelectorAll('[data-range]').forEach(el => {
+                el.addEventListener('click', () => {
+                    const range = el.getAttribute('data-range');
+                    label.textContent = el.textContent.trim();
+                    loadMonthlyIncome(range);
+                });
+            });
+        }
+
+        // Load New Users Chart with REAL data from Firebase
+        async function loadNewUsersChart(range = "month") {
+            try {
+                const allUsers = await window.FirebaseDataService.getCustomers();
+                console.log("✅ Users loaded:", allUsers.length, "users");
+                
+                if (!allUsers || allUsers.length === 0) {
+                    console.log("❌ No users available");
+                    showNoDataMessage();
+                    return;
+                }
+                
+                const now = new Date();
+                let startDate, endDate;
+
+                if (range === 'week') {
+                    const day = now.getDay();
+                    const diffToMonday = (day === 0 ? -6 : 1 - day);
+                    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diffToMonday);
+                    endDate = new Date(startDate);
+                    endDate.setDate(startDate.getDate() + 6);
+                } else if (range === 'month') {
+                    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                    endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                } else { // year
+                    startDate = new Date(now.getFullYear(), 0, 1);
+                    endDate = new Date(now.getFullYear(), 11, 31);
+                }
+                startDate.setHours(0, 0, 0, 0);
+                endDate.setHours(23, 59, 59, 999);
+
+                const relevantUsers = allUsers.filter(user => {
+                    if (!user.createdAt) return false;
+                    let userDate;
+                    if (user.createdAt.seconds) {
+                        userDate = new Date(user.createdAt.seconds * 1000);
+                    } else if (user.createdAt.toDate) {
+                        userDate = user.createdAt.toDate();
+                    } else {
+                        userDate = new Date(user.createdAt);
+                    }
+                    return userDate >= startDate && userDate <= endDate;
+                });
+                
+                const currentUsers = allUsers.length - relevantUsers.length;
+                const newUsers = relevantUsers.length;
+                const totalUsers = allUsers.length;
+                
+                const userData = {
+                    current: totalUsers > 0 ? Math.round((currentUsers / totalUsers) * 100) : 0,
+                    new: totalUsers > 0 ? Math.round((newUsers / totalUsers) * 100) : 0,
+                    counts: {
+                        current: currentUsers,
+                        new: newUsers,
+                        total: totalUsers
+                    }
+                };
+                
+                console.log("✅ New users data calculated:", userData);
+                
+                const options = {
+                    chart: {
+                        height: 300,
+                        type: "donut",
+                    },
+                    series: [userData.current, userData.new],
+                    labels: ["Current", "New"],
+                    colors: ["#8b5cf6", "#06b6d4"],
+                    legend: {
+                        position: "bottom",
+                        horizontalAlign: "center",
+                        formatter: function(seriesName, opts) {
+                            const count = userData.counts[seriesName.toLowerCase()];
+                            const percentage = opts.w.globals.series[opts.seriesIndex];
+                            return seriesName + ": " + count + " users (" + percentage + "%)";
+                        }
+                    },
+                    plotOptions: {
+                        pie: {
+                            donut: {
+                                size: "70%",
+                                labels: {
+                                    show: true,
+                                    total: {
                                         show: true,
-                                        total: {
-                                            show: true,
-                                            label: "Total Users",
-                                            formatter: function() {
-                                                return userData.counts.total;
-                                            }
+                                        label: "Total Users",
+                                        formatter: function() {
+                                            return userData.counts.total;
                                         }
                                     }
                                 }
                             }
-                        },
-                        dataLabels: {
-                            enabled: true,
-                            formatter: function (val) {
-                                return val + "%";
-                            }
-                        },
-                        tooltip: {
-                            y: {
-                                formatter: function(val, opts) {
-                                    const seriesName = opts.w.globals.labels[opts.seriesIndex].toLowerCase();
-                                    const count = userData.counts[seriesName];
-                                    return count + " users (" + val + "%)";
-                                }
+                        }
+                    },
+                    dataLabels: {
+                        enabled: true,
+                        formatter: function (val) {
+                            return val + "%";
+                        }
+                    },
+                    tooltip: {
+                        y: {
+                            formatter: function(val, opts) {
+                                const seriesName = opts.w.globals.labels[opts.seriesIndex].toLowerCase();
+                                const count = userData.counts[seriesName];
+                                return count + " users (" + val + "%)";
                             }
                         }
-                    };
-                    
-                    const chartElement = document.querySelector("#newUsersChart");
-                    if (chartElement) {
-                        if (chartElement._apexChart) {
-                            chartElement._apexChart.destroy();
-                        }
-                        
-                        const chart = new ApexCharts(chartElement, options);
-                        chart.render();
-                        chartElement._apexChart = chart;
-                        
-                        console.log("📊 New users chart updated with real data");
-                    } else {
-                        console.error("❌ Chart element not found");
                     }
-                } catch (error) {
-                    console.error("❌ Error loading new users chart:", error);
-                    showNoDataMessage();
-                }
-            }
-
-            // Show no data message
-            function showNoDataMessage() {
+                };
+                
                 const chartElement = document.querySelector("#newUsersChart");
                 if (chartElement) {
-                    chartElement.innerHTML = "<div class='text-center p-4'><h6 class='text-muted'>No user data available</h6><p class='text-muted small'>Please check Firebase connection</p></div>";
-                }
-            }
-
-            // Fallback static chart function
-            // Fallback static chart function with realistic data
-
-            // Load Documents from Firebase (REAL DATA)
-            async function loadDocuments() {
-                if (window.FirebaseDataService) {
-                    try {
-                        const documents = await window.FirebaseDataService.getDocuments();
-                        console.log('Documents Data:', documents);
-                        const documentsTableBody = document.getElementById('documentsTableBody');
-                        if (documentsTableBody) {
-                            documentsTableBody.innerHTML = '';
-                            if (documents.length > 0) {
-                                documents.forEach(doc => {
-                                    const row = `
-                                        <tr>
-                                            <td>${doc.title || 'N/A'}</td>
-                                            <td>${doc.category || 'N/A'}</td>
-                                            <td>${doc.email || 'N/A'}</td>
-                                            <td>${doc.filename || 'N/A'}</td>
-                                            <td>${doc.extension || 'N/A'}</td>
-                                            <td>
-                                                ${doc.url ? `<a href="${doc.url}" target="_blank" class="btn btn-sm btn-outline-primary">Download</a>` : 'N/A'}
-                                            </td>
-                                        </tr>
-                                    `;
-                                    documentsTableBody.insertAdjacentHTML('beforeend', row);
-                                });
-                            } else {
-                                documentsTableBody.innerHTML = '<tr><td colspan="6" class="text-center">No documents found.</td></tr>';
-                            }
-                        }
-                    } catch (error) {
-                        console.error('Error loading documents:', error);
-                        const documentsTableBody = document.getElementById('documentsTableBody');
-                        if (documentsTableBody) {
-                            documentsTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Error loading documents.</td></tr>';
-                        }
-                    }
-                } else {
-                    console.error('FirebaseDataService is not defined for documents.');
-                }
-            }
-
-            // Load all data
-            // Load Monthly Income data from Stripe
-            // Load Monthly Income data from existing Stripe balance
-            // Load Monthly Income data from existing Stripe balance
-        async function loadMonthlyIncome(range = 'month') {
-    try {
-        const response = await fetch(`/.netlify/functions/stripe-monthly-income?range=${range}`);
-        const result = await response.json();
-
-        if (result.success && Array.isArray(result.data)) {
-            // result.data: [{ month, min, max, avg }]
-            const data = result.data.map(item => ({
-                month: item.month,
-                income: Number(item.avg) || 0
-            }));
-            updateMonthlyIncomeChart(data);
-        } else {
-            console.error("❌ No monthly income data available");
-        }
-    } catch (error) {
-        console.error("❌ Error loading monthly income:", error);
-    }
-}
-
-            function updateMonthlyIncomeChart(data) {
-                const chartElement = document.querySelector("#monthlyIncomeChart");
-                if (chartElement && window.ApexCharts) {
-                    const months = data.map(item => item.month);
-                    const incomes = data.map(item => item.income);
-
-                    const options = {
-                        chart: {
-                            type: "area",
-                            height: 350,
-                            toolbar: { show: false }
-                        },
-                        series: [
-                            {
-                                name: "Monthly Income",
-                                data: incomes.map(v => Number(v).toFixed(1))
-                            }
-                        ],
-                        xaxis: {
-                            categories: months,
-                            axisBorder: { show: false },
-                            axisTicks: { show: false }
-                        },
-                        yaxis: {
-                            labels: {
-                                formatter: function (val) {
-                                    return Number(val).toFixed(1) + "kr";
-                                }
-                            }
-                        },
-                        colors: ["#3b82f6"],
-                        fill: {
-                            type: "solid",
-                            opacity: 0.9
-                        },
-                        stroke: {
-                            curve: "straight",
-                            width: 2
-                        },
-                        grid: {
-                            borderColor: "#f1f5f9",
-                            strokeDashArray: 5
-                        },
-                        legend: {
-                            show: false
-                        },
-                        dataLabels: {
-                            enabled: false
-                        },
-                        tooltip: {
-                            y: {
-                                formatter: function(val) {
-                                    return Number(val).toFixed(1) + "kr";
-                                }
-                            }
-                        }
-                    };
-
-                    // Destroy existing chart if it exists
                     if (chartElement._apexChart) {
                         chartElement._apexChart.destroy();
                     }
-
-                    // Create new chart
+                    
                     const chart = new ApexCharts(chartElement, options);
                     chart.render();
                     chartElement._apexChart = chart;
-
-                    console.log("📊 Monthly income chart updated with real data");
+                    
+                    console.log("📊 New users chart updated with real data");
                 } else {
-                    console.log("⚠️ Chart element or ApexCharts not found");
+                    console.error("❌ Chart element not found");
                 }
+            } catch (error) {
+                console.error("❌ Error loading new users chart:", error);
+                showNoDataMessage();
             }
+        }
 
-            // Wire range dropdown to reload chart
-            function attachIncomeRangeHandlers() {
-                const menu = document.getElementById('incomeRangeMenu');
-                const label = document.getElementById('incomeRangeLabel');
-                if (!menu || !label) return;
-                menu.querySelectorAll('[data-range]').forEach(el => {
-                    el.addEventListener('click', () => {
-                        const range = el.getAttribute('data-range');
-                        label.textContent = el.textContent.trim();
-                        loadMonthlyIncome(range);
-                    });
+        // Wire new users range dropdown
+        function attachNewUsersRangeHandlers() {
+            const menu = document.getElementById("newUsersRangeMenu");
+            const label = document.getElementById("newUsersRangeLabel");
+            if (!menu || !label) return;
+            menu.querySelectorAll("a[data-range]").forEach(a => {
+                a.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    const range = a.getAttribute("data-range");
+                    label.textContent = a.textContent.trim();
+                    loadNewUsersChart(range);
                 });
+            });
+        }
+
+        // Show no data message
+        function showNoDataMessage() {
+            const chartElement = document.querySelector("#newUsersChart");
+            if (chartElement) {
+                chartElement.innerHTML = "<div class='text-center p-4'><h6 class='text-muted'>No user data available</h6><p class='text-muted small'>Please check Firebase connection</p></div>";
             }
-            // Load Latest Cards from Firebase (Registered Users)
-            // Load Latest Cards from Firebase (Registered Users)
-            // Load Latest Cards from existing Firebase users
-            // Load Latest Cards from Firebase users (same as users.html)
-                    
-                    const allUsers = await window.FirebaseDataService.getCustomers();
-                    console.log("✅ Users loaded:", allUsers.length, "users");
-                    
-                    if (!allUsers || allUsers.length === 0) {
-                        console.log("❌ No users available");
-                        displayLatestCards([]);
-                        return;
-                    }
-                    
-                    const registeredUsers = allUsers.filter(user => user.cardOrderStatus === "Registered");
-                    console.log("📊 Found registered users:", registeredUsers.length);
-                    
-                    // Sort by registration date desc if present
-                    registeredUsers.sort((a,b) => new Date(b.cardOrderDate || 0) - new Date(a.cardOrderDate || 0));
-                    
-                    const cards = registeredUsers.map(user => ({
-                        id: user.id,
-                        name: (user.firstName || "") + " " + (user.lastName || ""),
-                        registrationDate: user.cardOrderDate,
-                        status: user.cardOrderStatus || "Registered",
-                        email: user.email || "N/A",
-                    }));
-                    console.log("✅ Cards generated:", cards.length);
-                    initCardsPagination(cards);
-                } catch (error) {
-                    console.error("❌ Error loading cards:", error);
+        }
+
+        // Load Latest Cards from Firebase (Registered Users)
+        async function loadLatestCards() {
+            try {
+                const allUsers = await window.FirebaseDataService.getCustomers();
+                console.log("✅ Users loaded:", allUsers.length, "users");
+                
+                if (!allUsers || allUsers.length === 0) {
+                    console.log("❌ No users available");
                     displayLatestCards([]);
-                }
-            }
-
-            // Pagination state
-            let allCardsData = [];
-            let cardsPage = 1;
-            const cardsPageSize = 5;
-
-            function initCardsPagination(cards) {
-                allCardsData = cards || [];
-                cardsPage = 1;
-                renderCardsPage();
-                setupCardsPager();
-            }
-
-            function setupCardsPager() {
-                const wrap = document.getElementById('cardsPagination');
-                const prev = document.getElementById('cardsPrev');
-                const next = document.getElementById('cardsNext');
-                if (!wrap || !prev || !next) return;
-                const totalPages = Math.max(1, Math.ceil(allCardsData.length / cardsPageSize));
-                wrap.style.display = totalPages > 1 ? '' : 'none';
-                prev.onclick = () => { if (cardsPage > 1) { cardsPage--; renderCardsPage(); } };
-                next.onclick = () => { if (cardsPage < totalPages) { cardsPage++; renderCardsPage(); } };
-            }
-
-            function renderCardsPage() {
-                const tbody = document.getElementById('popularProductsBody');
-                const info = document.getElementById('cardsPageInfo');
-                if (!tbody) return;
-                tbody.innerHTML = '';
-                if (!allCardsData || allCardsData.length === 0) {
-                    tbody.innerHTML = "<tr><td colspan='4' class='text-center text-muted'>No registered users found</td></tr>";
                     return;
                 }
-                const totalPages = Math.max(1, Math.ceil(allCardsData.length / cardsPageSize));
-                if (cardsPage > totalPages) cardsPage = totalPages;
-                const start = (cardsPage - 1) * cardsPageSize;
-                const pageItems = allCardsData.slice(start, start + cardsPageSize);
-                pageItems.forEach(card => {
-                    const row = `
-                            <tr>
-                                <td>${card.name || "N/A"}</td>
-                                <td>${card.registrationDate || "N/A"}</td>
-                                <td>${card.status || "N/A"}</td>
-                                <td>${card.email || "N/A"}</td>
-                            </tr>`;
-                    tbody.insertAdjacentHTML('beforeend', row);
-                });
-                if (info) info.textContent = `Page ${cardsPage} of ${totalPages}`;
-                const wrap = document.getElementById('cardsPagination');
-                if (wrap) wrap.style.display = totalPages > 1 ? '' : 'none';
-            }
-
-            // Display latest cards data (kept for compatibility; now uses pagination)
-            function displayLatestCards(cards) {
+                
+                const registeredUsers = allUsers.filter(user => user.cardOrderStatus === "Registered");
+                console.log("📊 Found registered users:", registeredUsers.length);
+                
+                // Sort by registration date desc if present
+                registeredUsers.sort((a,b) => new Date(b.cardOrderDate || 0) - new Date(a.cardOrderDate || 0));
+                
+                const cards = registeredUsers.map(user => ({
+                    id: user.id,
+                    name: (user.firstName || "") + " " + (user.lastName || ""),
+                    registrationDate: user.cardOrderDate,
+                    status: user.cardOrderStatus || "Registered",
+                    email: user.email || "N/A",
+                }));
+                console.log("✅ Cards generated:", cards.length);
                 initCardsPagination(cards);
+            } catch (error) {
+                console.error("❌ Error loading cards:", error);
+                displayLatestCards([]);
             }
-            // Load Country Sales from Stripe
-            async function loadCountrySales() {
-                try {
-                    console.log("🔄 Loading country sales data from Stripe...");
-                    const response = await fetch("/.netlify/functions/stripe-country-sales");
-                    const result = await response.json();
-                    
-                    if (result.success) {
-                        console.log("✅ Country sales data loaded:", result.data);
-                        displayCountrySales(result.data);
-                    } else {
-                        console.error("❌ Country sales error:", result.error);
-                        displayCountrySales([]);
-                    }
-                } catch (error) {
-                    console.error("❌ Error loading country sales:", error);
+        }
+
+        // Pagination functions for Latest Cards
+        function initCardsPagination(cards) {
+            allCardsData = cards || [];
+            cardsPage = 1;
+            renderCardsPage();
+            setupCardsPager();
+        }
+
+        function setupCardsPager() {
+            const wrap = document.getElementById('cardsPagination');
+            const prev = document.getElementById('cardsPrev');
+            const next = document.getElementById('cardsNext');
+            if (!wrap || !prev || !next) return;
+            const totalPages = Math.max(1, Math.ceil(allCardsData.length / cardsPageSize));
+            wrap.style.display = totalPages > 1 ? '' : 'none';
+            prev.onclick = () => { if (cardsPage > 1) { cardsPage--; renderCardsPage(); } };
+            next.onclick = () => { if (cardsPage < totalPages) { cardsPage++; renderCardsPage(); } };
+        }
+
+        function renderCardsPage() {
+            const tbody = document.getElementById('popularProductsBody');
+            const info = document.getElementById('cardsPageInfo');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            if (!allCardsData || allCardsData.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='4' class='text-center text-muted'>No registered users found</td></tr>";
+                return;
+            }
+            const totalPages = Math.max(1, Math.ceil(allCardsData.length / cardsPageSize));
+            if (cardsPage > totalPages) cardsPage = totalPages;
+            const start = (cardsPage - 1) * cardsPageSize;
+            const pageItems = allCardsData.slice(start, start + cardsPageSize);
+            pageItems.forEach(card => {
+                const row = `
+                    <tr>
+                        <td>${card.name || "N/A"}</td>
+                        <td>${card.registrationDate || "N/A"}</td>
+                        <td>${card.status || "N/A"}</td>
+                        <td>${card.email || "N/A"}</td>
+                    </tr>`;
+                tbody.insertAdjacentHTML('beforeend', row);
+            });
+            if (info) info.textContent = `Page ${cardsPage} of ${totalPages}`;
+            const wrap = document.getElementById('cardsPagination');
+            if (wrap) wrap.style.display = totalPages > 1 ? '' : 'none';
+        }
+
+        // Display latest cards data (kept for compatibility; now uses pagination)
+        function displayLatestCards(cards) {
+            initCardsPagination(cards);
+        }
+
+        // Load Country Sales from Stripe
+        async function loadCountrySales() {
+            try {
+                console.log("🔄 Loading country sales data from Stripe...");
+                const response = await fetch("/.netlify/functions/stripe-country-sales");
+                const result = await response.json();
+                
+                if (result.success) {
+                    console.log("✅ Country sales data loaded:", result.data);
+                    displayCountrySales(result.data);
+                } else {
+                    console.error("❌ Country sales error:", result.error);
                     displayCountrySales([]);
                 }
+            } catch (error) {
+                console.error("❌ Error loading country sales:", error);
+                displayCountrySales([]);
             }
+        }
 
-            // Display country sales data
-            function displayCountrySales(countryData) {
-                const countrySalesBody = document.getElementById("countrySalesBody");
-                if (countrySalesBody) {
-                    countrySalesBody.innerHTML = "";
-                    
-                    if (countryData.length === 0) {
-                        countrySalesBody.innerHTML = "<tr><td colspan='3' class='text-center text-muted'>No country data available</td></tr>";
-                        return;
-                    }
-
-                    // Default countries with flags
-                    const defaultCountries = [
-                        { name: "USA", flag: "us_flag.jpg" },
-                        { name: "Spain", flag: "spain_flag.jpg" },
-                        { name: "French", flag: "french_flag.jpg" },
-                        { name: "Germany", flag: "germany_flag.jpg" },
-                        { name: "Bahamas", flag: "baha_flag.jpg" },
-                        { name: "Russia", flag: "russia_flag.jpg" }
-                    ];
-
-                    // Merge with real data and sort by revenue (desc)
-                    const countries = defaultCountries
-                        .map(defaultCountry => {
-                            const realData = countryData.find(c => c.name === defaultCountry.name);
-                            return {
-                                ...defaultCountry,
-                                revenue: realData ? realData.revenue : 0,
-                                percentage: realData ? realData.percentage : 0,
-                                count: realData ? realData.count : 0
-                            };
-                        })
-                        .sort((a, b) => b.revenue - a.revenue);
-
-                    countries.forEach(country => {
-                        const row = `
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <img src="assets/images/flags/${country.flag}" alt="" class="me-2 thumb-sm rounded-circle">
-                                        <span class="text-dark">${country.name}</span>
-                                    </div>
-                                </td>
-                                <td>${country.revenue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}kr</td>
-                                <td>
-                                    <div class="progress" style="height: 5px;">
-                                        <div class="progress-bar bg-primary" role="progressbar" style="width: ${country.percentage}%;" aria-valuenow="${country.percentage}" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                        countrySalesBody.insertAdjacentHTML("beforeend", row);
-                    });
+        // Display country sales data
+        function displayCountrySales(countryData) {
+            const countrySalesBody = document.getElementById("countrySalesBody");
+            if (countrySalesBody) {
+                countrySalesBody.innerHTML = "";
+                
+                if (countryData.length === 0) {
+                    countrySalesBody.innerHTML = "<tr><td colspan='3' class='text-center text-muted'>No country data available</td></tr>";
+                    return;
                 }
+
+                // Default countries with flags
+                const defaultCountries = [
+                    { name: "USA", flag: "us_flag.jpg" },
+                    { name: "Spain", flag: "spain_flag.jpg" },
+                    { name: "French", flag: "french_flag.jpg" },
+                    { name: "Germany", flag: "germany_flag.jpg" },
+                    { name: "Bahamas", flag: "baha_flag.jpg" },
+                    { name: "Russia", flag: "russia_flag.jpg" }
+                ];
+
+                // Merge with real data and sort by revenue (desc)
+                const countries = defaultCountries
+                    .map(defaultCountry => {
+                        const realData = countryData.find(c => c.name === defaultCountry.name);
+                        return {
+                            ...defaultCountry,
+                            revenue: realData ? realData.revenue : 0,
+                            percentage: realData ? realData.percentage : 0,
+                            count: realData ? realData.count : 0
+                        };
+                    })
+                    .sort((a, b) => b.revenue - a.revenue);
+
+                countries.forEach(country => {
+                    const row = `
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="assets/images/flags/${country.flag}" alt="" class="me-2 thumb-sm rounded-circle">
+                                    <span class="text-dark">${country.name}</span>
+                                </div>
+                            </td>
+                            <td>${country.revenue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}kr</td>
+                            <td>
+                                <div class="progress" style="height: 5px;">
+                                    <div class="progress-bar bg-primary" role="progressbar" style="width: ${country.percentage}%;" aria-valuenow="${country.percentage}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    countrySalesBody.insertAdjacentHTML("beforeend", row);
+                });
             }
+        }
+
+        // Main initialization function
+        document.addEventListener("DOMContentLoaded", async function() {
+            // Wait for Firebase to be ready
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            // Load all data
             await loadRealStripeData();
             await loadCountrySales();
             await loadLatestCards();
@@ -848,12 +833,7 @@
             loadMonthlyIncomeChart();
             attachNewUsersRangeHandlers();
             await loadNewUsersChart("month");
-            await loadDocuments();
         });
     </script>
-</body>
-</html>
-
-
 </body>
 </html>

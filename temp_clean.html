@@ -1,0 +1,830 @@
+@@include('./partials/html.html')
+
+<head>
+    @@include("./partials/title-meta.html", {"title": "Dashboard"})
+    @@include('./partials/head-css.html')
+</head>
+
+<body>
+    <!-- Top Bar Start -->
+    @@include('./partials/topbar.html')
+    <!-- Top Bar End -->
+    <!-- leftbar-tab-menu -->
+    @@include('./partials/startbar.html')
+    <!-- end leftbar-tab-menu-->
+
+    <div class="page-wrapper">
+        <!-- Page Content-->
+        <div class="page-content">
+            <div class="container-fluid">
+                <div class="row align-items-stretch">
+                    <div class="col-sm-12">
+                        <div class="page-title-box d-md-flex justify-content-md-between align-items-center">
+                            <h4 class="page-title">Dashboard</h4>
+                            <div class="">
+                                <ol class="breadcrumb mb-0">
+                                    <li class="breadcrumb-item"><a href="#">WMC</a></li>
+                                    <li class="breadcrumb-item active">Dashboard</li>
+                                </ol>
+                            </div>                            
+                        </div>
+                    </div>
+                </div>
+                <div class="row justify-content-center">
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="flex-shrink-0 bg-primary-subtle text-primary thumb-md rounded-circle">
+                                        <i class="iconoir-dollar-circle fs-4"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-2 text-truncate">
+                                        <p class="text-dark mb-0 fw-semibold fs-14">Total Revenue</p>
+                                        <p class="mb-0 text-truncate text-muted"><span class="text-success">8.5%</span>
+                                            Increase from last month</p>
+                                    </div>
+                                </div>
+                                <div class="row d-flex justify-content-center">
+                                    <div class="col">                                        
+                                        <h3 class="mt-2 mb-0 fw-bold revenue-card">Loading...</h3>
+                                    </div>
+                                    <div class="col align-self-center">
+                                        <div id="revenueChart" style="height: 60px; width: 100px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="flex-shrink-0 bg-info-subtle text-info thumb-md rounded-circle">
+                                        <i class="iconoir-cart fs-4"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-2 text-truncate">
+                                        <p class="text-dark mb-0 fw-semibold fs-14">New Orders</p>
+                                        <p class="mb-0 text-truncate text-muted"><span class="text-success">1.7%</span>
+                                            Increase from last month</p>
+                                    </div>
+                                </div>
+                                <div class="row d-flex justify-content-center">
+                                    <div class="col">                                        
+                                        <h3 class="mt-2 mb-0 fw-bold orders-card">Loading...</h3>
+                                    </div>
+                                    <div class="col align-self-center">
+                                        <div id="ordersChart" style="height: 60px; width: 100px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="flex-shrink-0 bg-warning-subtle text-warning thumb-md rounded-circle">
+                                        <i class="iconoir-cancel fs-4"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-2 text-truncate">
+                                        <p class="text-dark mb-0 fw-semibold fs-14">Cancelled</p>
+                                        <p class="mb-0 text-truncate text-muted"><span class="text-danger">0.7%</span>
+                                            Decrease from last month</p>
+                                    </div>
+                                </div>
+                                <div class="row d-flex justify-content-center">
+                                    <div class="col">                                        
+                                        <h3 class="mt-2 mb-0 fw-bold cancelled-card">Loading...</h3>
+                                    </div>
+                                    <div class="col align-self-center">
+                                        <div id="cancelledChart" style="height: 60px; width: 100px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="flex-shrink-0 bg-danger-subtle text-danger thumb-md rounded-circle">
+                                        <i class="iconoir-hexagon-dice fs-4"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-2 text-truncate">
+                                        <p class="text-dark mb-0 fw-semibold fs-14">Avg. Order Value</p>
+                                        <p class="mb-0 text-truncate text-muted"><span class="text-success">2.7%</span>
+                                            Increase from last month</p>
+                                    </div>
+                                </div>
+                                <div class="row d-flex justify-content-center">
+                                    <div class="col">                                        
+                                        <h3 class="mt-2 mb-0 fw-bold avg-order-card">Loading...</h3>
+                                    </div>
+                                    <div class="col align-self-center">
+                                        <div id="avgOrderChart" style="height: 60px; width: 100px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monthly Income Chart -->
+                <div class="row align-items-stretch">
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h4 class="card-title">Monthly Avg. Income</h4>
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" id="incomeRangeBtn">
+                                        <i class="fas fa-calendar me-1"></i> <span id="incomeRangeLabel">This Month</span>
+                                    </button>
+                                    <ul class="dropdown-menu" id="incomeRangeMenu">
+                                        <li><button type="button" class="dropdown-item" data-range="week">This Week</button></li>
+                                        <li><button type="button" class="dropdown-item" data-range="month">This Month</button></li>
+                                        <li><button type="button" class="dropdown-item" data-range="year">This Year</button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div id="monthlyIncomeChart"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h4 class="card-title">New Users</h4>
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" id="newUsersRangeBtn">
+                                        <i class="fas fa-calendar me-1"></i> <span id="newUsersRangeLabel">This Month</span>
+                                    </button>
+                                    <ul class="dropdown-menu" id="newUsersRangeMenu">
+                                        <li><a class="dropdown-item" data-range="week" href="#">This Week</a></li>
+                                        <li><a class="dropdown-item" data-range="month" href="#">This Month</a></li>
+                                        <li><a class="dropdown-item" data-range="year" href="#">This Year</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div id="newUsersChart"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Registration by Country and Latest Cards -->
+                <div class="row align-items-stretch">
+                    <div class="col-lg-6 d-flex">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h4 class="card-title">Top Registration by Country</h4>
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" id="newUsersRangeBtn">
+                                        <i class="fas fa-calendar me-1"></i> <span id="newUsersRangeLabel">This Month</span>
+                                    </button>
+                                    <ul class="dropdown-menu" id="newUsersRangeMenu">
+                                        <li><a class="dropdown-item" data-range="week" href="#">This Week</a></li>
+                                        <li><a class="dropdown-item" data-range="month" href="#">This Month</a></li>
+                                        <li><a class="dropdown-item" data-range="year" href="#">This Year</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Country</th>
+                                                <th>Revenue</th>
+                                                <th>Progress</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="countrySalesBody">
+                                            <tr>
+                                                <td colspan="3" class="text-center">
+                                                    <div class="spinner-border" role="status">
+                                                        <span class="visually-hidden">Loading...</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 d-flex">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h4 class="card-title">Latest Cards</h4>
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" id="newUsersRangeBtn">
+                                        <i class="fas fa-calendar me-1"></i> This Year
+                                    </button>
+                                    <ul class="dropdown-menu" id="newUsersRangeMenu">
+                                        <li><a class="dropdown-item" data-range="week" href="#">This Week</a></li>
+                                        <li><a class="dropdown-item" data-range="month" href="#">This Month</a></li>
+                                        <li><a class="dropdown-item" data-range="year" href="#">This Year</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Registration Date</th>
+                                                <th>Status</th>
+                                                <th>Email</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="popularProductsBody">
+                                            <tr>
+                                                <td colspan="4" class="text-center">
+                                                    <div class="spinner-border" role="status">
+                                                        <span class="visually-hidden">Loading...</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-3" id="cardsPagination" style="display:none;">
+                                    <div class="text-muted small" id="cardsPageInfo">Page 1</div>
+                                    <div>
+                                        <button class="btn btn-sm btn-outline-secondary me-2" id="cardsPrev">Prev</button>
+                                        <button class="btn btn-sm btn-outline-secondary" id="cardsNext">Next</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+</div>
+                                    <!-- Documents Section -->
+       
+
+    @@include('./partials/endbar.html')
+    @@include('./partials/vendorjs.html')
+
+    <script src="assets/libs/apexcharts/apexcharts.min.js"></script>
+    <script src="https://apexcharts.com/samples/assets/stock-prices.js"></script>
+    <script src="assets/js/app.js"></script>
+
+    <!-- Firebase CDN -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+
+    <!-- Firebase Config -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAsw_B2AFHDXEN1HKRLv31IGNccui6frY0",
+            authDomain: "world-medical-card-prod.firebaseapp.com",
+            databaseURL: "https://world-medical-card-prod-default-rtdb.firebaseio.com",
+            projectId: "world-medical-card-prod",
+            storageBucket: "world-medical-card-prod.appspot.com",
+            messagingSenderId: "693992819935",
+            appId: "1:693992819935:web:1124e6c059bb5d7d742d6a",
+            measurementId: "G-W1XF11SNBM"
+        };
+        firebase.initializeApp(firebaseConfig);
+    </script>
+    
+    <script src="assets/js/services/firebase-service.js"></script>
+    <script src="assets/js/services/firebase-products.js"></script>
+    <script src="assets/js/services/firebase-users-chart.js"></script>
+
+    <!-- Dashboard Script -->
+    <script>
+        document.addEventListener("DOMContentLoaded", async function() {
+            // Wait for Firebase to be ready
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            function setText(sel, val) {
+                var el = document.querySelector(sel);
+                if (el) { el.textContent = val; }
+            }
+
+            // Wire new users range dropdown
+            function attachNewUsersRangeHandlers() {
+                const menu = document.getElementById("newUsersRangeMenu");
+                const label = document.getElementById("newUsersRangeLabel");
+                if (!menu || !label) return;
+                menu.querySelectorAll("a[data-range]").forEach(a => {
+                    a.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        const range = a.getAttribute("data-range");
+                        label.textContent = a.textContent.trim();
+                        loadNewUsersChart(range);
+                    });
+                });
+            }
+
+            // Load REAL Stripe Data using Netlify Functions
+            async function loadRealStripeData() {
+                try {
+                    console.log('🔄 Loading REAL Stripe data from Netlify functions...');
+                    
+                    const response = await fetch('/.netlify/functions/stripe-metrics');
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        const metrics = result.data;
+                        console.log('✅ Real Stripe metrics loaded:', metrics);
+                        
+                        // Update dashboard cards with real data
+                        setText('.revenue-card', metrics.totalRevenue.toLocaleString() + "kr");
+                        setText('.orders-card', metrics.newOrders.toLocaleString());
+                        setText('.cancelled-card', metrics.cancellations || 0);
+                        setText('.avg-order-card', metrics.averageOrderValue.toLocaleString() + "kr");
+                        
+                        console.log('🎉 Dashboard updated with LIVE Stripe data!');
+                    } else {
+                        console.error('❌ Stripe API error:', result.error);
+                        setText('.revenue-card', 'API Error');
+                        setText('.orders-card', 'API Error');
+                        setText('.cancelled-card', 'API Error');
+                        setText('.avg-order-card', 'API Error');
+                    }
+
+            // Wire new users range dropdown
+            function attachNewUsersRangeHandlers() {
+                const menu = document.getElementById("newUsersRangeMenu");
+                const label = document.getElementById("newUsersRangeLabel");
+                if (!menu || !label) return;
+                menu.querySelectorAll("a[data-range]").forEach(a => {
+                    a.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        const range = a.getAttribute("data-range");
+                        label.textContent = a.textContent.trim();
+                        loadNewUsersChart(range);
+                    });
+                });
+            }
+                    
+                } catch (error) {
+                    console.error('❌ Error loading Stripe data:', error);
+                    setText('.revenue-card', 'Service Error');
+                    setText('.orders-card', 'Service Error');
+                    setText('.cancelled-card', 'Service Error');
+                    setText('.avg-order-card', 'Service Error');
+                }
+
+            // Wire new users range dropdown
+            function attachNewUsersRangeHandlers() {
+                const menu = document.getElementById("newUsersRangeMenu");
+                const label = document.getElementById("newUsersRangeLabel");
+                if (!menu || !label) return;
+                menu.querySelectorAll("a[data-range]").forEach(a => {
+                    a.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        const range = a.getAttribute("data-range");
+                        label.textContent = a.textContent.trim();
+                        loadNewUsersChart(range);
+                    });
+                });
+            }
+            }
+
+            // Wire new users range dropdown
+            function attachNewUsersRangeHandlers() {
+                const menu = document.getElementById("newUsersRangeMenu");
+                const label = document.getElementById("newUsersRangeLabel");
+                if (!menu || !label) return;
+                menu.querySelectorAll("a[data-range]").forEach(a => {
+                    a.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        const range = a.getAttribute("data-range");
+                        label.textContent = a.textContent.trim();
+                        loadNewUsersChart(range);
+                    });
+                });
+            }
+
+            // Create mini charts for KPI cards
+            function createMiniCharts() {
+                // Revenue Chart - Line chart
+                const revenueOptions = {
+                    chart: { type: 'line', height: 60, sparkline: { enabled: true } },
+                    stroke: { curve: 'smooth', width: 2 },
+                    colors: ['#4d7cff'],
+                    series: [{ data: [10, 20, 35, 45, 55, 70, 85, 95] }],
+                    tooltip: { enabled: false }
+                };
+                new ApexCharts(document.querySelector("#revenueChart"), revenueOptions).render();
+
+                // Orders Chart - Bar chart
+                const ordersOptions = {
+                    chart: { type: 'bar', height: 60, sparkline: { enabled: true } },
+                    colors: ['#4d7cff', '#ff6b6b'],
+                    series: [{ data: [20, 35, 25, 45, 30, 55, 40, 60] }],
+                    tooltip: { enabled: false }
+                };
+                new ApexCharts(document.querySelector("#ordersChart"), ordersOptions).render();
+
+                // Cancelled Chart - Donut chart
+                const cancelledOptions = {
+                    chart: { type: 'donut', height: 60, sparkline: { enabled: true } },
+                    colors: ['#4d7cff', '#ffc107', '#ff6b6b', '#28a745'],
+                    series: [30, 20, 25, 25],
+                    tooltip: { enabled: false },
+                    legend: { show: false }
+                };
+                new ApexCharts(document.querySelector("#cancelledChart"), cancelledOptions).render();
+
+                // Avg Order Chart - Network chart
+                const avgOrderOptions = {
+                    chart: { type: 'line', height: 60, sparkline: { enabled: true } },
+                    stroke: { curve: 'stepline', width: 2 },
+                    colors: ['#4d7cff'],
+                    series: [{ data: [15, 25, 20, 35, 30, 45, 40, 50] }],
+                    tooltip: { enabled: false }
+                };
+                new ApexCharts(document.querySelector("#avgOrderChart"), avgOrderOptions).render();
+            }
+
+            // Wire new users range dropdown
+            function attachNewUsersRangeHandlers() {
+                const menu = document.getElementById("newUsersRangeMenu");
+                const label = document.getElementById("newUsersRangeLabel");
+                if (!menu || !label) return;
+                menu.querySelectorAll("a[data-range]").forEach(a => {
+                    a.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        const range = a.getAttribute("data-range");
+                        label.textContent = a.textContent.trim();
+                        loadNewUsersChart(range);
+                    });
+                });
+            }
+
+            // Load Monthly Income Chart with REAL data
+            // Load Monthly Income Chart with REAL data from Stripe
+            function loadMonthlyIncomeChart() {
+                // default range: month
+                attachIncomeRangeHandlers();
+                loadMonthlyIncome('month');
+            }
+
+            // Wire new users range dropdown
+            function attachNewUsersRangeHandlers() {
+                const menu = document.getElementById("newUsersRangeMenu");
+                const label = document.getElementById("newUsersRangeLabel");
+                if (!menu || !label) return;
+                menu.querySelectorAll("a[data-range]").forEach(a => {
+                    a.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        const range = a.getAttribute("data-range");
+                        label.textContent = a.textContent.trim();
+                        loadNewUsersChart(range);
+                    });
+                });
+            }
+
+            // Load New Users Chart
+            // Load New Users Chart with REAL data from Firebase
+            // Load New Users Chart with REAL data from Firebase
+            // Load New Users Chart with REAL data from Firebase
+            async function loadNewUsersChart(range = "month") {
+                try {
+            // Load New Users Chart from Firebase users (same as users.html)
+                    
+                    const allUsers = await window.FirebaseDataService.getCustomers();
+                    console.log("✅ Users loaded:", allUsers.length, "users");
+                    
+                    if (!allUsers || allUsers.length === 0) {
+                        console.log("❌ No users available");
+                        showNoDataMessage();
+                        return;
+                    }
+
+            // Wire new users range dropdown
+            function attachNewUsersRangeHandlers() {
+                const menu = document.getElementById("newUsersRangeMenu");
+                const label = document.getElementById("newUsersRangeLabel");
+                if (!menu || !label) return;
+                menu.querySelectorAll("a[data-range]").forEach(a => {
+                    a.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        const range = a.getAttribute("data-range");
+                        label.textContent = a.textContent.trim();
+                        loadNewUsersChart(range);
+                    });
+                });
+            }
+                    
+                    const now = new Date();
+                    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+                    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                    
+                    const thisMonthUsers = allUsers.filter(user => {
+                        if (!user.createdAt) return false;
+                        let userDate;
+                        if (user.createdAt.seconds) {
+                            userDate = new Date(user.createdAt.seconds * 1000);
+                        } else if (user.createdAt.toDate) {
+                            userDate = user.createdAt.toDate();
+                        } else {
+                            userDate = new Date(user.createdAt);
+                        }
+
+            // Wire new users range dropdown
+            function attachNewUsersRangeHandlers() {
+                const menu = document.getElementById("newUsersRangeMenu");
+                const label = document.getElementById("newUsersRangeLabel");
+                if (!menu || !label) return;
+                menu.querySelectorAll("a[data-range]").forEach(a => {
+                    a.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        const range = a.getAttribute("data-range");
+                        label.textContent = a.textContent.trim();
+                        loadNewUsersChart(range);
+                    });
+                });
+            }
+                        return userDate >= startOfMonth && userDate <= endOfMonth;
+                    });
+                    
+                    const currentUsers = allUsers.length - thisMonthUsers.length;
+                    const newUsers = thisMonthUsers.length;
+                    const totalUsers = allUsers.length;
+                    
+                    const userData = {
+                        current: totalUsers > 0 ? Math.round((currentUsers / totalUsers) * 100) : 0,
+                        new: totalUsers > 0 ? Math.round((newUsers / totalUsers) * 100) : 0,
+                        counts: {
+                            current: currentUsers,
+                            new: newUsers,
+                            total: totalUsers
+                        }
+
+            // Wire new users range dropdown
+            function attachNewUsersRangeHandlers() {
+                const menu = document.getElementById("newUsersRangeMenu");
+                const label = document.getElementById("newUsersRangeLabel");
+                if (!menu || !label) return;
+                menu.querySelectorAll("a[data-range]").forEach(a => {
+                    a.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        const range = a.getAttribute("data-range");
+                        label.textContent = a.textContent.trim();
+                        loadNewUsersChart(range);
+                    });
+                });
+            }
+                    };
+                    
+                    console.log("✅ New users data calculated:", userData);
+                    
+                    const options = {
+                        chart: {
+                            height: 300,
+                            type: "donut",
+                        },
+                        series: [userData.current, userData.new],
+                        labels: ["Current", "New"],
+                        colors: ["#8b5cf6", "#06b6d4"],
+                        legend: {
+                            position: "bottom",
+                            horizontalAlign: "center",
+                            formatter: function(seriesName, opts) {
+                                const count = userData.counts[seriesName.toLowerCase()];
+                                const percentage = opts.w.globals.series[opts.seriesIndex];
+                                return seriesName + ": " + count + " users (" + percentage + "%)";
+                            }
+
+            // Wire new users range dropdown
+            function attachNewUsersRangeHandlers() {
+                const menu = document.getElementById("newUsersRangeMenu");
+                const label = document.getElementById("newUsersRangeLabel");
+                if (!menu || !label) return;
+                menu.querySelectorAll("a[data-range]").forEach(a => {
+                    a.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        const range = a.getAttribute("data-range");
+                        label.textContent = a.textContent.trim();
+                        loadNewUsersChart(range);
+                    });
+                });
+            }
+                        },
+                        plotOptions: {
+                            pie: {
+                                donut: {
+                                    size: "70%",
+                                    labels: {
+                                        show: true,
+                                        total: {
+                                            show: true,
+                                            label: "Total Users",
+                                            formatter: function() {
+                                                return userData.counts.total;
+                                            }
+
+            // Wire new users range dropdown
+            function attachNewUsersRangeHandlers() {
+                const menu = document.getElementById("newUsersRangeMenu");
+                const label = document.getElementById("newUsersRangeLabel");
+                if (!menu || !label) return;
+                menu.querySelectorAll("a[data-range]").forEach(a => {
+                    a.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        const range = a.getAttribute("data-range");
+                        label.textContent = a.textContent.trim();
+                        loadNewUsersChart(range);
+                    });
+                });
+            }
+                                        }
+            }
+
+            // Wire new users range dropdown
+            function attachNewUsersRangeHandlers() {
+                const menu = document.getElementById("newUsersRangeMenu");
+                const label = document.getElementById("newUsersRangeLabel");
+                if (!menu || !label) return;
+                menu.querySelectorAll("a[data-range]").forEach(a => {
+                    a.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        const range = a.getAttribute("data-range");
+                        label.textContent = a.textContent.trim();
+                        loadNewUsersChart(range);
+                    });
+                });
+            }
+                                    }
+            }
+
+            // Wire new users range dropdown
+            function attachNewUsersRangeHandlers() {
+                const menu = document.getElementById("newUsersRangeMenu");
+                const label = document.getElementById("newUsersRangeLabel");
+                if (!menu || !label) return;
+                menu.querySelectorAll("a[data-range]").forEach(a => {
+                    a.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        const range = a.getAttribute("data-range");
+                        label.textContent = a.textContent.trim();
+                        loadNewUsersChart(range);
+                    });
+                });
+            }
+                                }
+            }
+
+            // Wire new users range dropdown
+            function attachNewUsersRangeHandlers() {
+                const menu = document.getElementById("newUsersRangeMenu");
+                const label = document.getElementById("newUsersRangeLabel");
+                if (!menu || !label) return;
+                menu.querySelectorAll("a[data-range]").forEach(a => {
+                    a.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        const range = a.getAttribute("data-range");
+                        label.textContent = a.textContent.trim();
+                        loadNewUsersChart(range);
+                    });
+                });
+            }
+                            }
+            }
+
+            // Wire new users range dropdown
+            function attachNewUsersRangeHandlers() {
+                const menu = document.getElementById("newUsersRangeMenu");
+                const label = document.getElementById("newUsersRangeLabel");
+                if (!menu || !label) return;
+                menu.querySelectorAll("a[data-range]").forEach(a => {
+                    a.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        const range = a.getAttribute("data-range");
+                        label.textContent = a.textContent.trim();
+                        loadNewUsersChart(range);
+                    });
+                });
+            }
+                        },
+                        dataLabels: {
+                            enabled: true,
+                            formatter: function (val) {
+                                return val + "%";
+                            }
+
+            // Wire new users range dropdown
+            function attachNewUsersRangeHandlers() {
+                const menu = document.getElementById("newUsersRangeMenu");
+                const label = document.getElementById("newUsersRangeLabel");
+                if (!menu || !label) return;
+                menu.querySelectorAll("a[data-range]").forEach(a => {
+                    a.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        const range = a.getAttribute("data-range");
+                        label.textContent = a.textContent.trim();
+                        loadNewUsersChart(range);
+                    });
+                });
+            }
+                        },
+                        tooltip: {
+                            y: {
+                                formatter: function(val, opts) {
+                                    const seriesName = opts.w.globals.labels[opts.seriesIndex].toLowerCase();
+                                    const count = userData.counts[seriesName];
+                                    return count + " users (" + val + "%)";
+                                }
+
+            // Wire new users range dropdown
+            function attachNewUsersRangeHandlers() {
+                const menu = document.getElementById("newUsersRangeMenu");
+                const label = document.getElementById("newUsersRangeLabel");
+                if (!menu || !label) return;
+                menu.querySelectorAll("a[data-range]").forEach(a => {
+                    a.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        const range = a.getAttribute("data-range");
+                        label.textContent = a.textContent.trim();
+                        loadNewUsersChart(range);
+                    });
+                });
+            }
+                            }
+            }
+
+            // Wire new users range dropdown
+            function attachNewUsersRangeHandlers() {
+                const menu = document.getElementById("newUsersRangeMenu");
+                const label = document.getElementById("newUsersRangeLabel");
+                if (!menu || !label) return;
+                menu.querySelectorAll("a[data-range]").forEach(a => {
+                    a.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        const range = a.getAttribute("data-range");
+                        label.textContent = a.textContent.trim();
+                        loadNewUsersChart(range);
+                    });
+                });
+            }
+                        }
+            }
+
+            // Wire new users range dropdown
+            function attachNewUsersRangeHandlers() {
+                const menu = document.getElementById("newUsersRangeMenu");
+                const label = document.getElementById("newUsersRangeLabel");
+                if (!menu || !label) return;
+                menu.querySelectorAll("a[data-range]").forEach(a => {
+                    a.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        const range = a.getAttribute("data-range");
+                        label.textContent = a.textContent.trim();
+                        loadNewUsersChart(range);
+                    });
+                });
+            }
+                    };
+                    
+                    const chartElement = document.querySelector("#newUsersChart");
+                    if (chartElement) {
+                        if (chartElement._apexChart) {
+                            chartElement._apexChart.destroy();
+                        }
+
+            // Wire new users range dropdown
+            function attachNewUsersRangeHandlers() {
+                const menu = document.getElementById("newUsersRangeMenu");
+                const label = document.getElementById("newUsersRangeLabel");
+                if (!menu || !label) return;
+                menu.querySelectorAll("a[data-range]").forEach(a => {
+                    a.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        const range = a.getAttribute("data-range");
+                        label.textContent = a.textContent.trim();
+                        loadNewUsersChart(range);
+                    });
+                });
+            }
+                        
+                        const chart = new ApexCharts(chartElement, options);
+                        chart.render();
+                        chartElement._apexChart = chart;
+                        
+                        console.log("📊 New users chart updated with real data");
+                    } else {
+                        console.error("❌ Chart element not found");
+                    }
+
+            // Wire new users range dropdown
+            function attachNewUsersRangeHandlers() {
+                const menu = document.getElementById("newUsersRangeMenu");
+                const label = document.getElementById("newUsersRangeLabel");
+                if (!menu || !label) return;
+                menu.querySelectorAll("a[data-range]").forEach(a => {
+                    a.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        const range = a.getAttribute("data-range");
+                        label.textContent = a.textContent.trim();
+                        loadNewUsersChart(range);
+                    });
+                });
