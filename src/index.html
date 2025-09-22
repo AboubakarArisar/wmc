@@ -800,16 +800,18 @@
                         { name: "Russia", flag: "russia_flag.jpg" }
                     ];
 
-                    // Merge with real data
-                    const countries = defaultCountries.map(defaultCountry => {
-                        const realData = countryData.find(c => c.name === defaultCountry.name);
-                        return {
-                            ...defaultCountry,
-                            revenue: realData ? realData.revenue : 0,
-                            percentage: realData ? realData.percentage : 0,
-                            count: realData ? realData.count : 0
-                        };
-                    });
+                    // Merge with real data and sort by revenue (desc)
+                    const countries = defaultCountries
+                        .map(defaultCountry => {
+                            const realData = countryData.find(c => c.name === defaultCountry.name);
+                            return {
+                                ...defaultCountry,
+                                revenue: realData ? realData.revenue : 0,
+                                percentage: realData ? realData.percentage : 0,
+                                count: realData ? realData.count : 0
+                            };
+                        })
+                        .sort((a, b) => b.revenue - a.revenue);
 
                     countries.forEach(country => {
                         const row = `
