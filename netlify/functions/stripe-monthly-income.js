@@ -3,54 +3,66 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 exports.handler = async function (event, context) {
   try {
     const params = event.queryStringParameters || {};
-    const range = (params.range || "month").toLowerCase(); // 'week' | 'month' | 'year'
-
-    console.log(`🔄 Fetching income data from Stripe for range: ${range}`);
+    const range = (params.range || "month").toLowerCase();
 
     const now = new Date();
 
-    // Determine time window
-    let startDate = new Date(now);
-    if (range === "week") {
-      startDate.setDate(startDate.getDate() - 6); // last 7 days including today
-    } else if (range === "month") {
-      startDate = new Date(now.getFullYear(), now.getMonth(), 1); // start of current month
-    } else {
-      // year
-      startDate = new Date(now.getFullYear(), 0, 1); // start of current year
+    // Normalize to local midnight for boundaries
+    function atMidnight(d) {
+      const x = new Date(d);
+      x.setHours(0, 0, 0, 0);
+      return x;
     }
 
-    // Fetch charges in window
+    // Determine time window boundaries
+    let startDate, endDate;
+    if (range === "week") {
+      // Current week: Monday 00:00 to Sunday 23:59
+      const day = now.getDay(); // 0 Sun..6 Sat
+      const diffToMonday = day === 0 ? -6 : 1 - day; // move back to Monday
+      startDate = atMidnight(
+        new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate() + diffToMonday
+        )
+      );
+      endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 6);
+      endDate.setHours(23, 59, 59, 999);
+    } else if (range === "month") {
+      startDate = atMidnight(new Date(now.getFullYear(), now.getMonth(), 1));
+      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      endDate.setHours(23, 59, 59, 999);
+    } else {
+      // year
+      startDate = atMidnight(new Date(now.getFullYear(), 0, 1));
+      endDate = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
+    }
+
+    // Fetch charges within window
     const charges = await stripe.charges.list({
       created: {
         gte: Math.floor(startDate.getTime() / 1000),
-        lte: Math.floor(now.getTime() / 1000),
+        lte: Math.floor(endDate.getTime() / 1000),
       },
       limit: 1000,
     });
 
-    console.log(`✅ Found ${charges.data.length} charges`);
-
-    // Prepare aggregators
+    // Build buckets for the selected range
     let buckets = [];
     if (range === "week") {
-      // 7 day buckets (Mon..Sun localized order starting from startDate)
       const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-      // Build dates array from startDate..now
-      const days = [];
-      const cur = new Date(startDate);
-      while (cur <= now) {
-        days.push(new Date(cur));
-        cur.setDate(cur.getDate() + 1);
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(startDate);
+        d.setDate(startDate.getDate() + i);
+        buckets.push({
+          key: d.toISOString().slice(0, 10),
+          label: dayNames[d.getDay()],
+          total: 0,
+          count: 0,
+        });
       }
-      buckets = days.map((d) => ({
-        key: d.toISOString().slice(0, 10),
-        label: dayNames[d.getDay()],
-        total: 0,
-        count: 0,
-      }));
-
-      // Assign charges
       charges.data.forEach((ch) => {
         if (ch.status === "succeeded" && ch.amount > 0) {
           const dKey = new Date(ch.created * 1000).toISOString().slice(0, 10);
@@ -62,19 +74,15 @@ exports.handler = async function (event, context) {
         }
       });
     } else if (range === "month") {
-      // Days in current month
-      const year = now.getFullYear();
-      const month = now.getMonth();
+      const year = startDate.getFullYear();
+      const month = startDate.getMonth();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
-      buckets = Array.from({ length: daysInMonth }, (_, i) => ({
-        key: `${year}-${String(month + 1).padStart(2, "0")}-${String(
-          i + 1
-        ).padStart(2, "0")}`,
-        label: String(i + 1),
-        total: 0,
-        count: 0,
-      }));
-
+      for (let i = 1; i <= daysInMonth; i++) {
+        const key = `${year}-${String(month + 1).padStart(2, "0")}-${String(
+          i
+        ).padStart(2, "0")}`;
+        buckets.push({ key, label: String(i), total: 0, count: 0 });
+      }
       charges.data.forEach((ch) => {
         if (ch.status === "succeeded" && ch.amount > 0) {
           const d = new Date(ch.created * 1000);
@@ -90,7 +98,7 @@ exports.handler = async function (event, context) {
         }
       });
     } else {
-      // year: 12 months buckets
+      // year
       const monthNames = [
         "Jan",
         "Feb",
@@ -105,13 +113,15 @@ exports.handler = async function (event, context) {
         "Nov",
         "Dec",
       ];
-      buckets = Array.from({ length: 12 }, (_, i) => ({
-        key: `${now.getFullYear()}-${String(i + 1).padStart(2, "0")}`,
-        label: monthNames[i],
-        total: 0,
-        count: 0,
-      }));
-
+      const year = startDate.getFullYear();
+      for (let i = 0; i < 12; i++) {
+        buckets.push({
+          key: `${year}-${String(i + 1).padStart(2, "0")}`,
+          label: monthNames[i],
+          total: 0,
+          count: 0,
+        });
+      }
       charges.data.forEach((ch) => {
         if (ch.status === "succeeded" && ch.amount > 0) {
           const d = new Date(ch.created * 1000);
@@ -128,21 +138,21 @@ exports.handler = async function (event, context) {
       });
     }
 
-    // Build final dataset
+    // Final dataset matching frontend shape
     const finalData = buckets.map((b) => ({
-      month: b.label, // keep key name 'month' to match frontend
+      month: b.label, // keep property name for chart
       total: Math.round(b.total * 100) / 100,
       count: b.count,
       avg: b.count > 0 ? Math.round((b.total / b.count) * 100) / 100 : 0,
     }));
 
-    // If all zero, provide soft demo values so the UI is not empty
-    const responseData = finalData.every((x) => x.avg === 0)
-      ? finalData.map((x, i) => ({ ...x, avg: (i + 1) * 10 }))
-      : finalData;
+    // Provide safe non-zero demo values only if everything is zero
+    const hasReal = finalData.some((x) => x.avg > 0);
+    const responseData = hasReal
+      ? finalData
+      : finalData.map((x, i) => ({ ...x, avg: 0 }));
 
-    // Also provide min/max bands for potential future design
-    const minMaxData = responseData.map((m) => ({
+    const out = responseData.map((m) => ({
       month: m.month,
       min: Math.max(0, m.avg * 0.7),
       max: m.avg * 1.3,
@@ -157,13 +167,12 @@ exports.handler = async function (event, context) {
       },
       body: JSON.stringify({
         success: true,
-        data: minMaxData,
+        data: out,
         rawData: responseData,
-        hasRealData: !finalData.every((x) => x.avg === 0),
+        hasRealData: hasReal,
       }),
     };
   } catch (error) {
-    console.error("Stripe API error:", error);
     return {
       statusCode: 500,
       headers: {
