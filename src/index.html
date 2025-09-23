@@ -600,9 +600,11 @@
                 const otherUsers = allUsers.length - periodUsers.length;
                 const totalUsers = allUsers.length;
                 
+                const newPct = totalUsers > 0 ? parseFloat(((periodUsers.length / totalUsers) * 100).toFixed(1)) : 0;
+                const currentPct = totalUsers > 0 ? parseFloat((100 - newPct).toFixed(1)) : 0;
                 const userData = {
-                    current: totalUsers > 0 ? Math.round((otherUsers / totalUsers) * 100) : 0,
-                    new: totalUsers > 0 ? Math.round((periodUsers.length / totalUsers) * 100) : 0,
+                    current: currentPct,
+                    new: newPct,
                     counts: {
                         current: otherUsers,
                         new: periodUsers.length,
@@ -626,9 +628,16 @@
                         position: "bottom",
                         horizontalAlign: "center",
                         formatter: function(seriesName, opts) {
-                            const count = userData.counts[seriesName.toLowerCase() === "other periods" ? "current" : "new"];
-                            const percentage = opts.w.globals.series[opts.seriesIndex];
-                            return seriesName + ": " + count + " users (" + percentage + "%)";
+                            try {
+                                const key = seriesName.toLowerCase() === "other periods" ? "current" : "new";
+                                const count = userData.counts[key] ?? 0;
+                                const percentage = (opts && opts.w && opts.w.globals && opts.w.globals.series)
+                                  ? opts.w.globals.series[opts.seriesIndex]
+                                  : (key === 'current' ? userData.current : userData.new);
+                                return seriesName + ": " + count + " users (" + percentage + "%)";
+                            } catch (e) {
+                                return seriesName;
+                            }
                         }
                     },
                     plotOptions: {
@@ -651,15 +660,22 @@
                     dataLabels: {
                         enabled: true,
                         formatter: function (val) {
-                            return val + "%";
+                            return (typeof val === 'number' ? val.toFixed(1) : val) + "%";
                         }
                     },
                     tooltip: {
                         y: {
                             formatter: function(val, opts) {
-                                const seriesName = opts.w.globals.labels[opts.seriesIndex].toLowerCase();
-                                const count = seriesName === "other periods" ? userData.counts.current : userData.counts.new;
-                                return count + " users (" + val + "%)";
+                                try {
+                                    const label = (opts && opts.w && opts.w.globals && opts.w.globals.labels)
+                                      ? opts.w.globals.labels[opts.seriesIndex].toLowerCase()
+                                      : (opts.seriesIndex === 0 ? "other periods" : "selected period");
+                                    const count = label === "other periods" ? userData.counts.current : userData.counts.new;
+                                    const pct = typeof val === 'number' ? val.toFixed(1) : val;
+                                    return count + " users (" + pct + "%)";
+                                } catch (e) {
+                                    return val + "%";
+                                }
                             }
                         }
                     }
