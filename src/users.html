@@ -163,6 +163,7 @@
                 console.log('Fetching users from Firebase...');
                 allUsers = await window.FirebaseDataService.getCustomers();
                 console.log('Users loaded:', allUsers.length);
+                // console.log("users are : ", allUsers)
                 
                 if (allUsers.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No users found</td></tr>';

@@ -312,6 +312,44 @@
             }
         }
 
+        // Date utilities for consistent filtering
+        function getDateRange(range) {
+            const now = new Date();
+            let startDate, endDate;
+            if (range === 'week') {
+                const day = now.getDay();
+                const diffToMonday = (day === 0 ? -6 : 1 - day);
+                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diffToMonday);
+                endDate = new Date(startDate);
+                endDate.setDate(startDate.getDate() + 6);
+            } else if (range === 'month') {
+                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            } else { // year
+                startDate = new Date(now.getFullYear(), 0, 1);
+                endDate = new Date(now.getFullYear(), 11, 31);
+            }
+            startDate.setHours(0, 0, 0, 0);
+            endDate.setHours(23, 59, 59, 999);
+            return { startDate, endDate };
+        }
+
+        function parseUserDate(dateSrc) {
+            if (!dateSrc) return null;
+            try {
+                if (typeof dateSrc === 'object' && dateSrc.seconds) {
+                    return new Date(dateSrc.seconds * 1000);
+                }
+                if (typeof dateSrc === 'object' && typeof dateSrc.toDate === 'function') {
+                    return dateSrc.toDate();
+                }
+                // numeric timestamp (ms) or ISO/string
+                const d = new Date(dateSrc);
+                if (!isNaN(d.getTime())) return d;
+            } catch (e) { /* ignore */ }
+            return null;
+        }
+
         // Load REAL Stripe Data using Netlify Functions
         async function loadRealStripeData() {
             try {
@@ -517,37 +555,13 @@
                     return;
                 }
                 
-                const now = new Date();
-                let startDate, endDate;
-
-                if (range === 'week') {
-                    const day = now.getDay();
-                    const diffToMonday = (day === 0 ? -6 : 1 - day);
-                    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diffToMonday);
-                    endDate = new Date(startDate);
-                    endDate.setDate(startDate.getDate() + 6);
-                } else if (range === 'month') {
-                    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-                    endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-                } else { // year
-                    startDate = new Date(now.getFullYear(), 0, 1);
-                    endDate = new Date(now.getFullYear(), 11, 31);
-                }
-                startDate.setHours(0, 0, 0, 0);
-                endDate.setHours(23, 59, 59, 999);
+                const { startDate, endDate } = getDateRange(range);
 
                 const periodUsers = allUsers.filter(user => {
                     // Prefer memberSince; fall back to createdAt
                     const dateSrc = user.memberSince || user.createdAt;
-                    if (!dateSrc) return false;
-                    let userDate;
-                    if (dateSrc.seconds) {
-                        userDate = new Date(dateSrc.seconds * 1000);
-                    } else if (dateSrc.toDate) {
-                        userDate = dateSrc.toDate();
-                    } else {
-                        userDate = new Date(dateSrc);
-                    }
+                    const userDate = parseUserDate(dateSrc);
+                    if (!userDate) return false;
                     return userDate >= startDate && userDate <= endDate;
                 });
                 
