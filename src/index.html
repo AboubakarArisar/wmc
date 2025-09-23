@@ -262,6 +262,30 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- New: Registered Users & Cards Trend -->
+                <div class="row align-items-stretch mt-3">
+                    <div class="col-lg-12">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h4 class="card-title">New Registrations</h4>
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" id="registrationsRangeBtn">
+                                        <i class="fas fa-calendar me-1"></i> <span id="registrationsRangeLabel">This Month</span>
+                                    </button>
+                                    <ul class="dropdown-menu" id="registrationsRangeMenu">
+                                        <li><button type="button" class="dropdown-item" data-range="week">This Week</button></li>
+                                        <li><button type="button" class="dropdown-item" data-range="month">This Month</button></li>
+                                        <li><button type="button" class="dropdown-item" data-range="year">This Year</button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div id="registrationsTrendChart"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -946,6 +970,92 @@
             });
         }
 
+        // New Registrations Trend (users vs cards)
+        async function loadRegistrationsTrend(range = "month") {
+            try {
+                const { startDate, endDate } = getDateRange(range);
+                const allUsers = await window.FirebaseDataService.getCustomers();
+                // Users new in range
+                const newUsers = allUsers.filter(u => {
+                    const d = parseUserDate(u.memberSince || u.createdAt);
+                    return d && d >= startDate && d <= endDate;
+                });
+                // Cards registered in range (cardOrderStatus === "Registered")
+                const newCards = allUsers.filter(u => {
+                    if (u.cardOrderStatus !== "Registered") return false;
+                    const d = parseUserDate(u.cardOrderDate || u.memberSince || u.createdAt);
+                    return d && d >= startDate && d <= endDate;
+                });
+
+                // Build x-axis buckets like stripe-monthly-income
+                let labels = [], usersSeries = [], cardsSeries = [];
+                if (range === 'week') {
+                    const dayNames = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]; // start Monday
+                    for (let i = 0; i < 7; i++) {
+                        const d = new Date(startDate); d.setDate(startDate.getDate() + i);
+                        labels.push(dayNames[(d.getDay()+6)%7]);
+                        const dayStart = new Date(d); dayStart.setHours(0,0,0,0);
+                        const dayEnd = new Date(d); dayEnd.setHours(23,59,59,999);
+                        usersSeries.push(newUsers.filter(u => { const du = parseUserDate(u.memberSince||u.createdAt); return du && du>=dayStart && du<=dayEnd; }).length);
+                        cardsSeries.push(newCards.filter(u => { const dc = parseUserDate(u.cardOrderDate||u.memberSince||u.createdAt); return dc && dc>=dayStart && dc<=dayEnd; }).length);
+                    }
+                } else if (range === 'month') {
+                    const year = startDate.getFullYear(); const month = startDate.getMonth();
+                    const days = new Date(year, month+1, 0).getDate();
+                    for (let i=1;i<=days;i++){ labels.push(String(i));
+                        const dayStart = new Date(year, month, i, 0,0,0,0);
+                        const dayEnd = new Date(year, month, i, 23,59,59,999);
+                        usersSeries.push(newUsers.filter(u=>{ const du=parseUserDate(u.memberSince||u.createdAt); return du&&du>=dayStart&&du<=dayEnd;}).length);
+                        cardsSeries.push(newCards.filter(u=>{ const dc=parseUserDate(u.cardOrderDate||u.memberSince||u.createdAt); return dc&&dc>=dayStart&&dc<=dayEnd;}).length);
+                    }
+                } else {
+                    const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+                    for (let i=0;i<12;i++){ labels.push(monthNames[i]);
+                        const mStart = new Date(startDate.getFullYear(), i, 1, 0,0,0,0);
+                        const mEnd = new Date(startDate.getFullYear(), i+1, 0, 23,59,59,999);
+                        usersSeries.push(newUsers.filter(u=>{ const du=parseUserDate(u.memberSince||u.createdAt); return du&&du>=mStart&&du<=mEnd;}).length);
+                        cardsSeries.push(newCards.filter(u=>{ const dc=parseUserDate(u.cardOrderDate||u.memberSince||u.createdAt); return dc&&dc>=mStart&&dc<=mEnd;}).length);
+                    }
+                }
+
+                const el = document.querySelector('#registrationsTrendChart');
+                if (!el) return;
+                if (el._apexChart) el._apexChart.destroy();
+                const options = {
+                    chart: { type: 'area', height: 350, toolbar: { show:false } },
+                    series: [
+                        { name: 'New Users', data: usersSeries },
+                        { name: 'New Cards', data: cardsSeries }
+                    ],
+                    xaxis: { categories: labels },
+                    yaxis: { labels: { formatter: (v)=> Math.round(v) } },
+                    colors: ['#06b6d4', '#8b5cf6'],
+                    dataLabels: { enabled:false },
+                    stroke: { curve:'smooth', width:2 },
+                    grid: { borderColor:'#f1f5f9', strokeDashArray:5 },
+                    legend: { show:true, position:'top' }
+                };
+                const chart = new ApexCharts(el, options);
+                chart.render();
+                el._apexChart = chart;
+            } catch (e) {
+                console.error('❌ Error loading registrations trend:', e);
+            }
+        }
+
+        function attachRegistrationsRangeHandlers() {
+            const menu = document.getElementById('registrationsRangeMenu');
+            const label = document.getElementById('registrationsRangeLabel');
+            if (!menu || !label) return;
+            menu.querySelectorAll('[data-range]').forEach(el => {
+                el.addEventListener('click', () => {
+                    const range = el.getAttribute('data-range');
+                    label.textContent = el.textContent.trim();
+                    loadRegistrationsTrend(range);
+                });
+            });
+        }
+
         // Main initialization function
         document.addEventListener("DOMContentLoaded", async function() {
             // Wait for Firebase to be ready
@@ -960,7 +1070,9 @@
             attachNewUsersRangeHandlers();
             attachCountryRangeHandlers();
             attachCardsRangeHandlers();
+            attachRegistrationsRangeHandlers();
             await loadNewUsersChart("month");
+            await loadRegistrationsTrend("month");
         });
     </script>
 </body>
