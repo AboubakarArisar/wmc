@@ -537,14 +537,16 @@
                 endDate.setHours(23, 59, 59, 999);
 
                 const periodUsers = allUsers.filter(user => {
-                    if (!user.createdAt) return false;
+                    // Prefer memberSince; fall back to createdAt
+                    const dateSrc = user.memberSince || user.createdAt;
+                    if (!dateSrc) return false;
                     let userDate;
-                    if (user.createdAt.seconds) {
-                        userDate = new Date(user.createdAt.seconds * 1000);
-                    } else if (user.createdAt.toDate) {
-                        userDate = user.createdAt.toDate();
+                    if (dateSrc.seconds) {
+                        userDate = new Date(dateSrc.seconds * 1000);
+                    } else if (dateSrc.toDate) {
+                        userDate = dateSrc.toDate();
                     } else {
-                        userDate = new Date(user.createdAt);
+                        userDate = new Date(dateSrc);
                     }
                     return userDate >= startDate && userDate <= endDate;
                 });
@@ -554,16 +556,17 @@
                 
                 const userData = {
                     current: totalUsers > 0 ? Math.round((otherUsers / totalUsers) * 100) : 0,
-                    new: totalUsers > 0 ? Math.round((periodUsers / totalUsers) * 100) : 0,
+                    new: totalUsers > 0 ? Math.round((periodUsers.length / totalUsers) * 100) : 0,
                     counts: {
                         current: otherUsers,
-                        new: periodUsers,
+                        new: periodUsers.length,
                         total: totalUsers
                     }
                 };
+
                 
                 console.log("✅ New users data calculated:", userData);
-                console.log("📊 Range:", range, "Period users:", periodUsers, "Other users:", otherUsers);
+                console.log("📊 Range:", range, "Period users:", periodUsers.length, "Other users:", otherUsers);
                 
                 const options = {
                     chart: {
