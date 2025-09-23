@@ -337,15 +337,47 @@
         function parseUserDate(dateSrc) {
             if (!dateSrc) return null;
             try {
+                // Firestore Timestamp variants
                 if (typeof dateSrc === 'object' && dateSrc.seconds) {
                     return new Date(dateSrc.seconds * 1000);
                 }
                 if (typeof dateSrc === 'object' && typeof dateSrc.toDate === 'function') {
                     return dateSrc.toDate();
                 }
-                // numeric timestamp (ms) or ISO/string
-                const d = new Date(dateSrc);
-                if (!isNaN(d.getTime())) return d;
+                // Strings and numbers
+                let str = dateSrc;
+                if (typeof dateSrc === 'number') {
+                    // seconds or ms
+                    if (dateSrc < 1e12) return new Date(dateSrc * 1000);
+                    return new Date(dateSrc);
+                }
+                if (typeof dateSrc === 'string') {
+                    str = dateSrc.trim();
+                    // numeric string
+                    if (/^\d{10,13}$/.test(str)) {
+                        const n = parseInt(str, 10);
+                        return n < 1e12 ? new Date(n * 1000) : new Date(n);
+                    }
+                    // dd/mm/yyyy or d/m/yyyy
+                    const dm = str.match(/^([0-3]?\d)[\/\-]([0-1]?\d)[\/\-](\d{2,4})$/);
+                    if (dm) {
+                        const d = parseInt(dm[1], 10);
+                        const m = parseInt(dm[2], 10) - 1;
+                        const y = parseInt(dm[3].length === 2 ? (dm[3] > '50' ? '19'+dm[3] : '20'+dm[3]) : dm[3], 10);
+                        return new Date(y, m, d);
+                    }
+                    // yyyy/mm/dd or yyyy-mm-dd
+                    const ym = str.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})(.*)?$/);
+                    if (ym) {
+                        const y = parseInt(ym[1], 10);
+                        const m = parseInt(ym[2], 10) - 1;
+                        const d = parseInt(ym[3], 10);
+                        return new Date(y, m, d);
+                    }
+                    // last resort: Date parse
+                    const guess = new Date(str);
+                    if (!isNaN(guess.getTime())) return guess;
+                }
             } catch (e) { /* ignore */ }
             return null;
         }
