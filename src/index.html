@@ -472,10 +472,15 @@
                 const response = await fetch(`/.netlify/functions/stripe-monthly-income?range=${range}`);
                 const result = await response.json();
 
-                if (result.success && Array.isArray(result.data)) {
-                    const data = result.data.map(item => ({
+                if (result.success) {
+                    // Prefer rawData (contains total/count/avg); fallback to data.avg
+                    const source = Array.isArray(result.rawData) && result.rawData.length
+                      ? result.rawData
+                      : (Array.isArray(result.data) ? result.data : []);
+
+                    const data = source.map(item => ({
                         month: item.month,
-                        income: Number(item.total) || 0
+                        income: Number(item.total != null ? item.total : item.avg) || 0
                     }));
                     updateMonthlyIncomeChart(data);
                 } else {
