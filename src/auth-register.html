@@ -267,18 +267,6 @@
         }
 
         init() {
-          // Check if user is already logged in
-          let authStateChecked = false;
-          auth.onAuthStateChanged((user) => {
-            if (authStateChecked) return;
-
-            if (user) {
-              authStateChecked = true;
-              console.log("User already logged in:", user.email);
-              window.location.replace("index.html");
-            }
-          });
-
           // Form submission
           document
             .getElementById("register-form")

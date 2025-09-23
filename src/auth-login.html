@@ -209,14 +209,13 @@
 
         init() {
           // Check if user is already logged in
-          let authStateChecked = false;
-          auth.onAuthStateChanged((user) => {
-            if (authStateChecked) return;
 
+          onAuthStateChanged(auth, (user) => {
             if (user) {
-              authStateChecked = true;
-              console.log("User already logged in:", user.email);
-              window.location.replace("index.html");
+              console.log("Already logged in:", user.email);
+              if (!window.location.pathname.includes("index.html")) {
+                window.location.replace("index.html");
+              }
             }
           });
 

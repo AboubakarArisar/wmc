@@ -329,22 +329,21 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Authentication state handler
-        let authStateChecked = false;
-        onAuthStateChanged(auth, (user) => {
-            if (authStateChecked) return;
-            
-            if (!user) {
-                authStateChecked = true;
-                console.log("No user logged in, redirecting to login");
-                window.location.replace("auth-login.html");
-                return;
-            }
-            
-            authStateChecked = true;
-            console.log("User logged in:", user.email);
-            // User is authenticated, continue with dashboard loading
-        });
+ 
+let checked = false;
+
+onAuthStateChanged(auth, (user) => {
+  if (checked) return;  // prevent multiple redirects
+  checked = true;
+
+  if (!user) {
+    console.log("No user, redirecting to login");
+    window.location.replace("auth-login.html");
+  } else {
+    console.log("Dashboard loaded for:", user.email);
+    // show dashboard UI
+  }
+});
     </script>
     
     <script src="assets/js/services/firebase-service.js"></script>
