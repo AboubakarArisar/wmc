@@ -316,7 +316,36 @@
             appId: "1:693992819935:web:1124e6c059bb5d7d742d6a",
             measurementId: "G-W1XF11SNBM"
         };
-        firebase.initializeApp(firebaseConfig);
+        let app;
+        try {
+            app = initializeApp(firebaseConfig);
+        } catch (error) {
+            if (error.code === "app/duplicate-app") {
+                console.log("Firebase app already initialized, using existing instance");
+                app = getApp();
+            } else {
+                throw error;
+            }
+        }
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Authentication state handler
+        let authStateChecked = false;
+        onAuthStateChanged(auth, (user) => {
+            if (authStateChecked) return;
+            
+            if (!user) {
+                authStateChecked = true;
+                console.log("No user logged in, redirecting to login");
+                window.location.replace("auth-login.html");
+                return;
+            }
+            
+            authStateChecked = true;
+            console.log("User logged in:", user.email);
+            // User is authenticated, continue with dashboard loading
+        });
     </script>
     
     <script src="assets/js/services/firebase-service.js"></script>
