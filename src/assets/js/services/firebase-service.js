@@ -1,26 +1,56 @@
-// Firebase Data Service - NO IMPORTS, NO EXPORTS
-// Pure JavaScript class for Firebase data fetching
+// Firebase Data Service - Updated for Firebase v9+ modular syntax
+// This service will be initialized after Firebase is loaded
 
 class FirebaseDataService {
   constructor() {
     this.db = null;
-    this.initializeFirebase();
+    this.auth = null;
+    this.initialized = false;
   }
 
-  initializeFirebase() {
-    if (typeof firebase !== 'undefined' && firebase.firestore) {
-      this.db = firebase.firestore();
-    } else {
-      setTimeout(() => this.initializeFirebase(), 100);
+  async initializeFirebase() {
+    if (this.initialized) return;
+
+    try {
+      // Wait for Firebase to be available
+      await this.waitForFirebase();
+
+      // Import Firebase functions dynamically
+      const { getFirestore } = await import(
+        "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
+      );
+      const { getAuth } = await import(
+        "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"
+      );
+
+      // Get the app instance from the global scope
+      const app = window.firebaseApp;
+      if (!app) {
+        throw new Error("Firebase app not initialized");
+      }
+
+      this.db = getFirestore(app);
+      this.auth = getAuth(app);
+      this.initialized = true;
+
+      console.log("✅ Firebase service initialized successfully");
+    } catch (error) {
+      console.error("❌ Error initializing Firebase service:", error);
+      throw error;
     }
   }
 
   async waitForFirebase() {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
+      let attempts = 0;
+      const maxAttempts = 50; // 5 seconds max
+
       const checkFirebase = () => {
-        if (typeof firebase !== 'undefined' && firebase.firestore) {
-          this.db = firebase.firestore();
+        attempts++;
+        if (window.firebaseApp) {
           resolve();
+        } else if (attempts >= maxAttempts) {
+          reject(new Error("Firebase app not available after 5 seconds"));
         } else {
           setTimeout(checkFirebase, 100);
         }
@@ -31,131 +61,159 @@ class FirebaseDataService {
 
   async getDocuments() {
     try {
-      if (!this.db) {
-        await this.waitForFirebase();
+      if (!this.initialized) {
+        await this.initializeFirebase();
       }
-      
-      const snapshot = await this.db.collection('documents')
-        .orderBy('id', 'desc')
-        
-        .get();
-      
-      return snapshot.docs.map(doc => ({
+
+      const { collection, query, orderBy, getDocs } = await import(
+        "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
+      );
+
+      const q = query(collection(this.db, "documents"), orderBy("id", "desc"));
+
+      const snapshot = await getDocs(q);
+
+      return snapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       }));
     } catch (error) {
-      console.error('Error fetching documents:', error);
+      console.error("Error fetching documents:", error);
       return [];
     }
   }
 
   async getOrders() {
     try {
-      if (!this.db) {
-        await this.waitForFirebase();
+      if (!this.initialized) {
+        await this.initializeFirebase();
       }
-      
-      const snapshot = await this.db.collection('TrackOrder')
-        .orderBy('date', 'desc')
-        
-        .get();
-      
-      return snapshot.docs.map(doc => ({
+
+      const { collection, query, orderBy, getDocs } = await import(
+        "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
+      );
+
+      const q = query(
+        collection(this.db, "TrackOrder"),
+        orderBy("date", "desc")
+      );
+
+      const snapshot = await getDocs(q);
+
+      return snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-        date: doc.data().date ? new Date(doc.data().date).toLocaleDateString() : 'N/A'
+        date: doc.data().date
+          ? new Date(doc.data().date).toLocaleDateString()
+          : "N/A",
       }));
     } catch (error) {
-      console.error('Error fetching orders:', error);
+      console.error("Error fetching orders:", error);
       return [];
     }
   }
 
   async getCustomers() {
     try {
-      if (!this.db) {
-        await this.waitForFirebase();
+      if (!this.initialized) {
+        await this.initializeFirebase();
       }
-      
-      const snapshot = await this.db.collection('user')
-        
-        .get();
-      
-      return snapshot.docs.map(doc => ({
+
+      const { collection, getDocs } = await import(
+        "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
+      );
+
+      const snapshot = await getDocs(collection(this.db, "user"));
+
+      return snapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       }));
     } catch (error) {
-      console.error('Error fetching customers:', error);
+      console.error("Error fetching customers:", error);
       return [];
     }
   }
 
   async getProducts() {
     try {
-      if (!this.db) {
-        await this.waitForFirebase();
+      if (!this.initialized) {
+        await this.initializeFirebase();
       }
-      
-      const snapshot = await this.db.collection('medicine')
-        
-        .get();
-      
-      return snapshot.docs.map(doc => ({
+
+      const { collection, getDocs } = await import(
+        "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
+      );
+
+      const snapshot = await getDocs(collection(this.db, "medicine"));
+
+      return snapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       }));
     } catch (error) {
-      console.error('Error fetching products:', error);
+      console.error("Error fetching products:", error);
       return [];
     }
   }
 
   async getChatMessages() {
     try {
-      if (!this.db) {
-        await this.waitForFirebase();
+      if (!this.initialized) {
+        await this.initializeFirebase();
       }
-      
-      const snapshot = await this.db.collection('chat')
-        .orderBy('timestamp', 'desc')
-        
-        .get();
-      
-      return snapshot.docs.map(doc => ({
+
+      const { collection, query, orderBy, getDocs } = await import(
+        "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
+      );
+
+      const q = query(
+        collection(this.db, "chat"),
+        orderBy("timestamp", "desc")
+      );
+
+      const snapshot = await getDocs(q);
+
+      return snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-        timestamp: doc.data().timestamp ? new Date(doc.data().timestamp).toLocaleString() : 'N/A'
+        timestamp: doc.data().timestamp
+          ? new Date(doc.data().timestamp).toLocaleString()
+          : "N/A",
       }));
     } catch (error) {
-      console.error('Error fetching chat messages:', error);
+      console.error("Error fetching chat messages:", error);
       return [];
     }
   }
 
   async getCalendarEvents() {
     try {
-      if (!this.db) {
-        await this.waitForFirebase();
+      if (!this.initialized) {
+        await this.initializeFirebase();
       }
-      
-      const snapshot = await this.db.collection('events')
-        .orderBy('date', 'asc')
-        
-        .get();
-      
-      return snapshot.docs.map(doc => ({
+
+      const { collection, query, orderBy, getDocs } = await import(
+        "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
+      );
+
+      const q = query(collection(this.db, "events"), orderBy("date", "asc"));
+
+      const snapshot = await getDocs(q);
+
+      return snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-        date: doc.data().date ? new Date(doc.data().date).toLocaleDateString() : 'N/A'
+        date: doc.data().date
+          ? new Date(doc.data().date).toLocaleDateString()
+          : "N/A",
       }));
     } catch (error) {
-      console.error('Error fetching calendar events:', error);
+      console.error("Error fetching calendar events:", error);
       return [];
     }
   }
 }
 
-// Create global instance immediately
+// Create global instance
 window.FirebaseDataService = new FirebaseDataService();
