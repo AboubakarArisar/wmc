@@ -144,7 +144,7 @@ class FirebaseDataService {
         "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
       );
 
-      const snapshot = await getDocs(collection(this.db, "users"));
+      const snapshot = await getDocs(collection(this.db, "user"));
 
       return snapshot.docs.map((doc) => ({
         id: doc.id,
