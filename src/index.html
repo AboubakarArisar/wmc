@@ -299,33 +299,11 @@
 
     <!-- Firebase CDN -->
     <script type="module">
-        import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+       import { auth, db } from "../assets/js/services/firebase-service.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyAsw_B2AFHDXEN1HKRLv31IGNccui6frY0",
-            authDomain: "world-medical-card-prod.firebaseapp.com",
-            databaseURL: "https://world-medical-card-prod-default-rtdb.firebaseio.com",
-            projectId: "world-medical-card-prod",
-            storageBucket: "world-medical-card-prod.appspot.com",
-            messagingSenderId: "693992819935",
-            appId: "1:693992819935:web:1124e6c059bb5d7d742d6a",
-            measurementId: "G-W1XF11SNBM"
-        };
 
-        // Initialize Firebase
-        let app;
-if (!getApps().length) {
-  app = initializeApp(firebaseConfig);
-} else {
-  app = getApp(); // use existing app
-}
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
- 
-let checked = false;
 
 onAuthStateChanged(auth, (user) => {
   if (checked) return;  // prevent multiple redirects
