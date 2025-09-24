@@ -29,20 +29,7 @@ class AuthService {
     this.init();
   }
 
-  init() {
-    // Listen for auth state changes
-    // onAuthStateChanged(auth, (user) => {
-    //     this.currentUser = user;
-    //     this.notifyListeners('authStateChanged', user);
-    //     if (user) {
-    //         console.log('User signed in:', user.email);
-    //         this.loadUserProfile(user.uid);
-    //     } else {
-    //         console.log('User signed out');
-    //         this.notifyListeners('userProfile', null);
-    //     }
-    // });
-  }
+  init() {}
 
   // Authentication Methods
   async signUp(email, password, userData = {}) {
