@@ -236,7 +236,7 @@
 
             // Update last login time in Firestore
             try {
-              await updateDoc(doc(db, "users", user.uid), {
+              await updateDoc(doc(db, "user", user.uid), {
                 lastLoginAt: new Date(),
               });
             } catch (error) {
