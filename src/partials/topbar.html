@@ -135,7 +135,7 @@
     const name =
       user.displayName && user.displayName.trim().length
         ? user.displayName
-        : user.email || "User";
+        : user.firstName + user.lastName || "User";
     if (greetingEl) {
       // Keep "Good Morning" wording but personalize the name
       greetingEl.textContent = `Good Morning, ${name}!`;
