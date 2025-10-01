@@ -40,8 +40,7 @@
                                     </div>
                                     <div class="flex-grow-1 ms-2 text-truncate">
                                         <p class="text-dark mb-0 fw-semibold fs-14">Total Revenue</p>
-                                        <p class="mb-0 text-truncate text-muted"><span class="text-success">8.5%</span>
-                                            Increase from last month</p>
+                                        <p class="mb-0 text-truncate text-muted"></p>
                                     </div>
                                 </div>
                                 <div class="row d-flex justify-content-center">
@@ -64,8 +63,6 @@
                                     </div>
                                     <div class="flex-grow-1 ms-2 text-truncate">
                                         <p class="text-dark mb-0 fw-semibold fs-14">New Orders</p>
-                                        <p class="mb-0 text-truncate text-muted"><span class="text-success">1.7%</span>
-                                            Increase from last month</p>
                                     </div>
                                 </div>
                                 <div class="row d-flex justify-content-center">
@@ -88,8 +85,6 @@
                                     </div>
                                     <div class="flex-grow-1 ms-2 text-truncate">
                                         <p class="text-dark mb-0 fw-semibold fs-14">Cancelled</p>
-                                        <p class="mb-0 text-truncate text-muted"><span class="text-danger">0.7%</span>
-                                            Decrease from last month</p>
                                     </div>
                                 </div>
                                 <div class="row d-flex justify-content-center">
@@ -112,8 +107,6 @@
                                     </div>
                                     <div class="flex-grow-1 ms-2 text-truncate">
                                         <p class="text-dark mb-0 fw-semibold fs-14">Avg. Order Value</p>
-                                        <p class="mb-0 text-truncate text-muted"><span class="text-success">2.7%</span>
-                                            Increase from last month</p>
                                     </div>
                                 </div>
                                 <div class="row d-flex justify-content-center">
@@ -251,13 +244,7 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="d-flex justify-content-between align-items-center mt-3" id="cardsPagination" style="display:none;">
-                                    <div class="text-muted small" id="cardsPageInfo">Page 1</div>
-                                    <div>
-                                        <button class="btn btn-sm btn-outline-secondary me-2" id="cardsPrev">Prev</button>
-                                        <button class="btn btn-sm btn-outline-secondary" id="cardsNext">Next</button>
-                                    </div>
-                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -647,7 +634,7 @@
                         type: "donut",
                     },
                     series: [userData.current, userData.new],
-                    labels: ["Other Periods", "Selected Period"],
+                    labels: ["Other Periods", "selected users"],
                     colors: ["#8b5cf6", "#06b6d4"],
                     legend: {
                         position: "bottom",
@@ -694,7 +681,7 @@
                                 try {
                                     const label = (opts && opts.w && opts.w.globals && opts.w.globals.labels)
                                       ? opts.w.globals.labels[opts.seriesIndex].toLowerCase()
-                                      : (opts.seriesIndex === 0 ? "other periods" : "selected period");
+                                      : (opts.seriesIndex === 0 ? "other periods" : "selected users");
                                     const count = label === "other periods" ? userData.counts.current : userData.counts.new;
                                     const pct = typeof val === 'number' ? val.toFixed(1) : val;
                                     return count + " users (" + pct + "%)";
@@ -800,7 +787,7 @@
                     email: user.email || "N/A",
                 }));
                 console.log("✅ Cards generated:", cards.length);
-                initCardsPagination(cards);
+                displayLatestCards(cards);
             } catch (error) {
                 console.error("❌ Error loading cards:", error);
                 displayLatestCards([]);
@@ -854,9 +841,33 @@
             if (wrap) wrap.style.display = totalPages > 1 ? '' : 'none';
         }
 
-        // Display latest cards data (kept for compatibility; now uses pagination)
+        // Display latest cards data (limited to latest 5, no pagination)
         function displayLatestCards(cards) {
-            initCardsPagination(cards);
+            const tbody = document.getElementById('popularProductsBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            const list = Array.isArray(cards) ? cards.slice(0, 5) : [];
+            if (list.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='4' class='text-center text-muted'>No registered users found</td></tr>";
+                return;
+            }
+
+            list.forEach(card => {
+                const row = `
+                    <tr>
+                        <td>${card.name || "N/A"}</td>
+                        <td>${card.registrationDate || "N/A"}</td>
+                        <td>${card.status || "N/A"}</td>
+                        <td>${card.email || "N/A"}</td>
+                    </tr>`;
+                tbody.insertAdjacentHTML('beforeend', row);
+            });
+
+            const wrap = document.getElementById('cardsPagination');
+            if (wrap) wrap.style.display = 'none';
+            const info = document.getElementById('cardsPageInfo');
+            if (info) info.textContent = '';
         }
 
         // Load Country Sales from Stripe

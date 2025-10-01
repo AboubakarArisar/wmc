@@ -132,10 +132,11 @@
       }
       return;
     }
+
+    // console.log("user", user);
+
     const name =
-      user.displayName && user.displayName.trim().length
-        ? user.displayName
-        : user.firstName + user.lastName || "User";
+      user.displayName || user.email.split("@")[0];
     if (greetingEl) {
       // Keep "Good Morning" wording but personalize the name
       greetingEl.textContent = `Good Morning, ${name}!`;
