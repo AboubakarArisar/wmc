@@ -101,6 +101,49 @@ var chart = new ApexCharts(
 );
 chart.render();
 
+// Add dynamic range filter for Metrics
+(function () {
+  var labelEl = document.getElementById('metricsRangeLabel');
+  var menuEl = document.getElementById('metricsRangeMenu');
+  if (!labelEl || !menuEl) return;
+
+  var rangeToSeries = {
+    today: [1.2, 0.8, 1.1, 0.9, 1.0, 0.7, 0.6, 0.8, 1.1, 0.9, 0.7, 0.8],
+    lastWeek: [1.8, 1.2, 1.3, 1.4, 1.1, 1.5, 1.2, 1.0, 1.6, 1.4, 1.3, 1.2],
+    lastMonth: [2.1, 1.7, 1.4, 1.8, 1.5, 1.9, 1.6, 1.3, 1.9, 1.7, 1.6, 1.5],
+    thisYear: [2.7, 2.2, 1.3, 2.5, 1, 2.5, 1.2, 1.2, 2.7, 1, 3.6, 2.1]
+  };
+
+  function titleCase(text) {
+    return text
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/^./, function (str) { return str.toUpperCase(); })
+      .trim();
+  }
+
+  menuEl.addEventListener('click', function (e) {
+    var target = e.target;
+    if (!target.classList.contains('dropdown-item')) return;
+    e.preventDefault();
+
+    var range = target.getAttribute('data-range');
+    if (!range || !rangeToSeries[range]) return;
+
+    // Update label
+    labelEl.textContent = titleCase(range);
+
+    // Update chart data (only first series for demo)
+    try {
+      chart.updateSeries([
+        { name: '2024', data: rangeToSeries[range] },
+        chart.w.globals.series.length > 1 ? { name: '2023', data: chart.w.config.series[1].data } : null
+      ].filter(Boolean));
+    } catch (err) {
+      console.error('Failed updating chart series for range', range, err);
+    }
+  });
+})();
+
 // Map
 
 

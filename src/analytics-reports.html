@@ -48,15 +48,15 @@
                                             <h4 class="card-title">Metrics</h4>                      
                                         </div><!--end col-->
                                         <div class="col-auto"> 
-                                            <div class="dropdown">
-                                                <a href="#" class="btn bt btn-light dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                    <i class="icofont-calendar fs-5 me-1"></i> This Year<i class="las la-angle-down ms-1"></i>
+                                            <div class="dropdown" id="metricsRangeDropdown">
+                                                <a href="#" class="btn bt btn-light dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="metricsRangeBtn">
+                                                    <i class="icofont-calendar fs-5 me-1"></i> <span id="metricsRangeLabel">This Month</span><i class="las la-angle-down ms-1"></i>
                                                 </a>
-                                                <div class="dropdown-menu dropdown-menu-end">
-                                                    <a class="dropdown-item" href="#">Today</a>
-                                                    <a class="dropdown-item" href="#">Last Week</a>
-                                                    <a class="dropdown-item" href="#">Last Month</a>
-                                                    <a class="dropdown-item" href="#">This Year</a>
+                                                <div class="dropdown-menu dropdown-menu-end" id="metricsRangeMenu">
+                                                    <a class="dropdown-item" href="#" data-range="today">Today</a>
+                                                    <a class="dropdown-item" href="#" data-range="lastWeek">Last Week</a>
+                                                    <a class="dropdown-item" href="#" data-range="lastMonth">Last Month</a>
+                                                    <a class="dropdown-item" href="#" data-range="thisYear">This Year</a>
                                                 </div>
                                             </div>               
                                         </div><!--end col-->
