@@ -211,16 +211,6 @@
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h4 class="card-title">Latest Cards</h4>
-                                <div class="dropdown">
-                                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" id="cardsRangeBtn">
-                                        <i class="fas fa-calendar me-1"></i> <span id="cardsRangeLabel">This Year</span>
-                                    </button>
-                                    <ul class="dropdown-menu" id="cardsRangeMenu">
-                                        <li><button type="button" class="dropdown-item" data-range="week">This Week</button></li>
-                                        <li><button type="button" class="dropdown-item" data-range="month">This Month</button></li>
-                                        <li><button type="button" class="dropdown-item" data-range="year">This Year</button></li>
-                                    </ul>
-                                </div>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -737,7 +727,7 @@
         }
 
         // Load Latest Cards from Firebase (Registered Users)
-        async function loadLatestCards(range = "year") {
+        async function loadLatestCards() {
             try {
                 const allUsers = await window.FirebaseDataService.getCustomers();
                 console.log("✅ Users loaded:", allUsers.length, "users");
@@ -748,36 +738,10 @@
                     return;
                 }
                 
-                let registeredUsers = allUsers.filter(user => user.cardOrderStatus === "Registered");
-                console.log("📊 Found registered users:", registeredUsers.length);
-                
-                // Filter by date range if specified
-                if (range !== "year") {
-                    const now = new Date();
-                    let startDate, endDate;
-
-                    if (range === "week") {
-                        const day = now.getDay();
-                        const diffToMonday = (day === 0 ? -6 : 1 - day);
-                        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diffToMonday);
-                        endDate = new Date(startDate);
-                        endDate.setDate(startDate.getDate() + 6);
-                    } else if (range === "month") {
-                        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-                        endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-                    }
-                    startDate.setHours(0, 0, 0, 0);
-                    endDate.setHours(23, 59, 59, 999);
-
-                    registeredUsers = registeredUsers.filter(user => {
-                        if (!user.cardOrderDate) return false;
-                        const userDate = new Date(user.cardOrderDate);
-                        return userDate >= startDate && userDate <= endDate;
-                    });
-                }
-                
-                // Sort by registration date desc if present
-                registeredUsers.sort((a,b) => new Date(b.cardOrderDate || 0) - new Date(a.cardOrderDate || 0));
+                const registeredUsers = allUsers
+                    .filter(user => user.cardOrderStatus === "Registered")
+                    .sort((a,b) => new Date(b.cardOrderDate || 0) - new Date(a.cardOrderDate || 0))
+                    .slice(0, 5);
                 
                 const cards = registeredUsers.map(user => ({
                     id: user.id,
@@ -963,19 +927,7 @@
         }
 
         // Wire cards range dropdown
-        function attachCardsRangeHandlers() {
-            const menu = document.getElementById("cardsRangeMenu");
-            const label = document.getElementById("cardsRangeLabel");
-            if (!menu || !label) return;
-            menu.querySelectorAll("[data-range]").forEach(el => {
-                el.addEventListener("click", (e) => {
-                    e.preventDefault();
-                    const range = el.getAttribute("data-range");
-                    label.textContent = el.textContent.trim();
-                    loadLatestCards(range);
-                });
-            });
-        }
+
 
         // New Registrations Trend (users vs cards)
         async function loadRegistrationsTrend(range = "month") {
@@ -1076,7 +1028,7 @@
             loadMonthlyIncomeChart();
             attachNewUsersRangeHandlers();
             attachCountryRangeHandlers();
-            attachCardsRangeHandlers();
+
             attachRegistrationsRangeHandlers();
             await loadNewUsersChart("month");
             await loadRegistrationsTrend("month");
